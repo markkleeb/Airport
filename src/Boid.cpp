@@ -11,31 +11,39 @@
 
 Boid::Boid() {
 
-    loc.x = ofRandomWidth();
-	loc.y = ofRandomHeight();
-	vel = 0;
-	acc = 0;
+    loc.x = 600;
+	loc.y = 400;
+    vel.x = ofRandom(-2, 2);
+    vel.y = ofRandom(-2, 2);
+    
+	acc = 0.01;
 	
 	cout << loc.x << ", " << loc.y << endl;
     r = 3.0;
-    maxspeed = 4;
+    maxspeed = 2;
     maxforce = 0.1;
 }
 
 
 // Method to update location
 void Boid::update() {
+    
+  
    
     vel += acc;   // Update velocity
     vel.x = ofClamp(vel.x, -maxspeed, maxspeed);  // Limit speed
 	vel.y = ofClamp(vel.y, -maxspeed, maxspeed);  // Limit speed
+   
     loc += vel;
+    
+    loc.x = ofClamp(loc.x, 0, ofGetWindowWidth());
+    loc.y = ofClamp(loc.y, 0, ofGetWindowHeight());
     acc = 0;  // Reset accelertion to 0 each cycle
 	
-	if (loc.x < -r) loc.x = ofGetWidth()+r;
-    if (loc.y < -r) loc.y = ofGetHeight()+r;
-    if (loc.x > ofGetWidth()+r) loc.x = -r;
-    if (loc.y > ofGetHeight()+r) loc.y = -r;
+//	if (loc.x < -r) loc.x = ofGetWidth()+r;
+//    if (loc.y < -r) loc.y = ofGetHeight()+r;
+//    if (loc.x > ofGetWidth()+r) loc.x = -r;
+//    if (loc.y > ofGetHeight()+r) loc.y = -r;
 }
 
 void Boid::seek(ofPoint target) {
@@ -50,7 +58,7 @@ void Boid::arrive(ofPoint target) {
 // Takes a second argument, if true, it slows down as it approaches the target
 ofPoint Boid::steer(ofPoint target, bool slowdown) {
     ofPoint steer;  // The steering vector
-    ofPoint desired = target - loc;  // A vector pointing from the location to the target
+    ofPoint desired = -(target-loc)/4;  // A vector pointing from the location to the target
     float d = ofDist(target.x, target.y, loc.x, loc.y); // Distance from the target is the magnitude of the vector
     
 	// If the distance is greater than 0, calc steering (otherwise return zero vector)

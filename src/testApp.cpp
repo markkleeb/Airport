@@ -9,10 +9,18 @@ void testApp::setup(){
 	framenum=0;
 	doCapture=false;
 	
-	for(int i=0; i<10; i++) {
+	
 		Boid b;
 		boids.push_back( b );
-	}
+	
+    for(int i = 0; i < 10; i ++){
+        
+        Blob b;
+        blobs.push_back( b );
+        
+        
+    }
+    
 
 }
 
@@ -30,6 +38,8 @@ void testApp::update(){
 		boids[i].update();
 	}
     
+ 
+    
 }
 
 //--------------------------------------------------------------
@@ -37,10 +47,22 @@ void testApp::draw(){
     
     ofNoFill();
 	ofCircle(mouseX, mouseY, 20);
+    
+    
+    cout << " " << ofGetFrameNum();
+    
+    if(ofGetFrameNum()%120 == 1){
+        Boid b;
+		boids.push_back( b );
+    }
 	
 	for(int i=0; i<boids.size(); i++) {
 		boids[i].draw();
 	}
+    
+    for(int i=0; i<blobs.size(); i ++){
+        blobs[i].draw();
+    }
 	capture();
 
 }
@@ -52,7 +74,7 @@ void testApp::keyPressed(int key){
 
 //--------------------------------------------------------------
 void testApp::keyReleased(int key){
-   if(key=='c') doCapture = !doCapture;
+   
 }
 
 //--------------------------------------------------------------

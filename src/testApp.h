@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "Boid.h"
+#include "Blob.h"
 
 
 class testApp : public ofBaseApp{
@@ -22,6 +23,7 @@ class testApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 		
         vector<Boid> boids;
+    vector<Blob> blobs;
     
 private:
     void capture();
