@@ -11,6 +11,7 @@
 #define BOID_H
 
 #include "ofMain.h"
+#include "Blob.h"
 
 class Boid {
 public:
@@ -18,9 +19,6 @@ public:
 	
 	void update();
 	void draw();
-	void seek(ofPoint target);
-	void arrive(ofPoint target);
-	ofPoint steer(ofPoint target, bool slowdown);
 	
 	ofPoint loc;
 	ofPoint vel;
@@ -28,6 +26,9 @@ public:
 	float r;
 	float maxforce;
 	float maxspeed;
+    
+    
+    void intersects(Blob b);
 };
 
 #endif

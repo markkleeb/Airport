@@ -14,10 +14,9 @@ Blob::Blob() {
     
     loc.x  = ofRandom(ofGetWindowWidth());
     loc.y = ofRandom(ofGetWindowHeight());
-    
     r = 20;
     
-    
+   
     
     
 }

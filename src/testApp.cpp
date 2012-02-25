@@ -29,16 +29,19 @@ void testApp::update(){
 
     for(int i=0; i<boids.size(); i++)
 	{
-		if(i<5) {
-			boids[i].seek( ofPoint(mouseX, mouseY) );
-		} else {
-			boids[i].arrive( ofPoint(mouseX, mouseY) );
-		}
-        
+	
 		boids[i].update();
-	}
+	
     
- 
+    for(int j = 0; j<blobs.size(); j++)
+    {
+        
+        boids[i].intersects(blobs[j]);
+        
+        
+    }
+    }
+    
     
 }
 

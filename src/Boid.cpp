@@ -16,7 +16,7 @@ Boid::Boid() {
     vel.x = ofRandom(-2, 2);
     vel.y = ofRandom(-2, 2);
     
-	acc = 0.01;
+	acc = -0.01;
 	
 	cout << loc.x << ", " << loc.y << endl;
     r = 3.0;
@@ -28,9 +28,9 @@ Boid::Boid() {
 // Method to update location
 void Boid::update() {
     
+    
   
-   
-    vel += acc;   // Update velocity
+   // vel += acc;   // Update velocity
     vel.x = ofClamp(vel.x, -maxspeed, maxspeed);  // Limit speed
 	vel.y = ofClamp(vel.y, -maxspeed, maxspeed);  // Limit speed
    
@@ -38,6 +38,7 @@ void Boid::update() {
     
     loc.x = ofClamp(loc.x, 0, ofGetWindowWidth());
     loc.y = ofClamp(loc.y, 0, ofGetWindowHeight());
+    
     acc = 0;  // Reset accelertion to 0 each cycle
 	
 //	if (loc.x < -r) loc.x = ofGetWidth()+r;
@@ -46,48 +47,17 @@ void Boid::update() {
 //    if (loc.y > ofGetHeight()+r) loc.y = -r;
 }
 
-void Boid::seek(ofPoint target) {
-    acc += steer(target, false);
-}
-
-void Boid::arrive(ofPoint target) {
-    acc += steer(target, true);
-}
-
-// A method that calculates a steering vector towards a target
-// Takes a second argument, if true, it slows down as it approaches the target
-ofPoint Boid::steer(ofPoint target, bool slowdown) {
-    ofPoint steer;  // The steering vector
-    ofPoint desired = -(target-loc)/4;  // A vector pointing from the location to the target
-    float d = ofDist(target.x, target.y, loc.x, loc.y); // Distance from the target is the magnitude of the vector
-    
-	// If the distance is greater than 0, calc steering (otherwise return zero vector)
-    if (d > 0) {
-		
-		desired /= d; // Normalize desired
-		// Two options for desired vector magnitude (1 -- based on distance, 2 -- maxspeed)
-		if ((slowdown) && (d < 100.0f)) {
-			desired *= maxspeed * (d/100.0f); // This damping is somewhat arbitrary
-		} else {
-			desired *= maxspeed;
-		}
-		// Steering = Desired minus Velocity
-		steer = desired - vel;
-		steer.x = ofClamp(steer.x, -maxforce, maxforce); // Limit to maximum steering force
-		steer.y = ofClamp(steer.y, -maxforce, maxforce); 
-    }
-    return steer;
-}
 
 void Boid::draw() {
     // Draw a triangle rotated in the direction of velocity
     //float theta = vel.heading2D() + radians(90);
 	
-	/*
-	ofPoint heading = loc + vel;  // A vector pointing from the location to where the boid is heading
-    float d = ofDist(loc.x, loc.y, heading.x, heading.y); // Distance from the target is the magnitude of the vector
-	heading /= d;
-	*/
+    
+    if(loc.x == 0 || loc.x == ofGetWindowWidth()) vel.x *= -1;
+    if(loc.y == 0 || loc.y == ofGetWindowHeight()) vel.y *= -1;
+
+	
+
 	
 	float angle = (float)atan2(-vel.y, vel.x);
     float theta =  -1.0*angle;
@@ -107,4 +77,40 @@ void Boid::draw() {
     ofPopMatrix();
 	ofDisableAlphaBlending();
 }
+
+void Boid::intersects(Blob b){
+    
+    ofPoint heading = loc + vel;  // A vector pointing from the location to where the boid is heading
+    float d = ofDist(loc.x, loc.y, heading.x, heading.y); // Distance from the target is the magnitude of the vector
+	heading /= d;
+    
+    ofSetColor(255, 0, 0);
+    ofLine(loc.x, loc.y, heading.x, heading.y);
+    
+    
+    if(heading.x >=  b.loc.x && heading.x <= b.loc.x +10) vel.x +=2.1;
+    if(heading.x <= b.loc.x && heading.x >= b.loc.x -10) vel.x -=2.1;
+    if(heading.y >= b.loc.y && heading.y <= b.loc.y +10) vel.y +=2.1;
+    if(heading.y <= b.loc.y && heading.y >= b.loc.y -10) vel.y -=2.1;
+    if(heading.x > ofGetWindowWidth() || heading.x < 0) vel.x *= -1.1;
+    if(heading.y > ofGetWindowHeight() || heading.y < 0) vel.y *= -1.1;
+    
+    //instead of adding to vel vectors, maybe applyForce laterally?
+
+    
+    
+    else{
+        return;
+    }
+    vel.x = ofClamp(vel.x, -maxspeed, maxspeed);  // Limit speed
+	vel.y = ofClamp(vel.y, -maxspeed, maxspeed);  // Limit speed
+
+    
+    
+}
+    
+    
+    
+    
+
 
