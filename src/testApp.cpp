@@ -68,11 +68,17 @@ void testApp::mouseDragged(int x, int y, int button){
 //--------------------------------------------------------------
 void testApp::mousePressed(int x, int y, int button){
 
+    
+   
+    
 }
 
 //--------------------------------------------------------------
 void testApp::mouseReleased(int x, int y, int button){
 
+    ofSetColor(255, 0, 0);
+    ofCircle(mouseX, mouseY, 20);
+    
 }
 
 //--------------------------------------------------------------
