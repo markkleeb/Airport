@@ -7,7 +7,8 @@ void testApp::setup(){
     ofSetFrameRate(60);
 	
     ofSetLogLevel(OF_LOG_VERBOSE);
-	
+	/* KINECTLESS
+
 	// enable depth->video image calibration
 	kinect.setRegistration(true);
     
@@ -15,17 +16,21 @@ void testApp::setup(){
 	//kinect.init(true); // shows infrared instead of RGB video image
 	//kinect.init(false, false); // disable video image (faster fps)
 	kinect.open();
-	
+	*/
 #ifdef USE_TWO_KINECTS
+    /* KINECTLESS
+
 	kinect2.init();
 	kinect2.open();
+    */
 #endif
 	
-	colorImg.allocate(kinect.width, kinect.height);
+	/* KINECTLESS
+    colorImg.allocate(kinect.width, kinect.height);
 	grayImage.allocate(kinect.width, kinect.height);
 	grayThreshNear.allocate(kinect.width, kinect.height);
 	grayThreshFar.allocate(kinect.width, kinect.height);
-	
+	*/
 	nearThreshold = 230;
 	farThreshold = 70;
 	bThreshWithOpenCV = true;
@@ -34,8 +39,10 @@ void testApp::setup(){
 	
 	// zero the tilt on startup
 	angle = 0;
-	kinect.setCameraTiltAngle(angle);
-	
+	/* KINECTLESS
+    kinect.setCameraTiltAngle(angle);
+    */
+    
 	// start from the front
 	bDrawPointCloud = false;
 
@@ -63,7 +70,7 @@ void testApp::setup(){
 void testApp::update(){
     
     ofBackground(0, 200, 0);
-    
+    /* KINECTLESS
     kinect.update();
     
     
@@ -103,7 +110,7 @@ void testApp::update(){
 		// also, find holes is set to true so we will get interior contours as well....
 		contourFinder.findContours(grayImage, 10, (kinect.width*kinect.height)/2, 20, false);
 	}
-
+     */
 
     for(int i=0; i<boids.size(); i++)
 	{
@@ -126,7 +133,8 @@ void testApp::draw(){
     
     ofSetColor(255, 255, 255);
     
-	kinectImage(); 
+	/* KINECTLESS
+    kinectImage(); 
     
     
     // draw instructions
@@ -147,7 +155,7 @@ void testApp::draw(){
     
     
 //    cout << " " << ofGetFrameNum();
-    
+    */
     if(ofGetFrameNum()%120 == 1){
         Boid b;
 		boids.push_back( b );
@@ -200,7 +208,8 @@ void testApp::keyPressed(int key){
 			if (nearThreshold < 0) nearThreshold = 0;
 			break;
 			
-		case 'w':
+		/* KINECTLESS
+        case 'w':
 			kinect.enableDepthNearValueWhite(!kinect.isDepthNearValueWhite());
 			break;
 			
@@ -225,6 +234,7 @@ void testApp::keyPressed(int key){
 			if(angle<-30) angle=-30;
 			kinect.setCameraTiltAngle(angle);
 			break;
+         */
 	}
 
 
@@ -293,6 +303,7 @@ void testApp::drawPointCloud() {
 	ofMesh mesh;
 	mesh.setMode(OF_PRIMITIVE_POINTS);
 	int step = 2;
+    /* KINECTLESS
 	for(int y = 0; y < h; y += step) {
 		for(int x = 0; x < w; x += step) {
 			if(kinect.getDistanceAt(x, y) > 0) {
@@ -301,6 +312,7 @@ void testApp::drawPointCloud() {
 			}
 		}
 	}
+    */
 	glPointSize(3);
 	ofPushMatrix();
 	// the projected points are 'upside down' and 'backwards' 
@@ -312,6 +324,7 @@ void testApp::drawPointCloud() {
 	ofPopMatrix();
 }
 
+/*KINECTLESS
 void testApp::kinectImage(){
 
     
@@ -321,4 +334,4 @@ void testApp::kinectImage(){
     
 }
 
-
+*/

@@ -3,9 +3,10 @@
 #include "ofMain.h"
 #include "Boid.h"
 #include "Blob.h"
+/* KINECTLESS
 #include "ofxOpenCv.h"
 #include "ofxKinect.h"
-
+*/
 
 class testApp : public ofBaseApp{
 
@@ -28,12 +29,15 @@ class testApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
+        /* KINECTLESS
+     
         ofxKinect kinect;
-    
+        */
         vector<Boid> boids;
         vector<Blob> blobs;
     
-    
+        /* KINECTLESS
+
         ofxCvColorImage colorImg;
         
         ofxCvGrayscaleImage grayImage; // grayscale depth image
@@ -41,10 +45,10 @@ class testApp : public ofBaseApp{
         ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
         
         ofxCvContourFinder contourFinder;
-        
+        */
         bool bThreshWithOpenCV;
         bool bDrawPointCloud;
-    bool kinectOn;
+        bool kinectOn;
         
         int nearThreshold;
         int farThreshold;
