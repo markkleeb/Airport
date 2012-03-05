@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "Boid.h"
 #include "Blob.h"
+#include "Boundaries.h"
 /* KINECTLESS
 #include "ofxOpenCv.h"
 #include "ofxKinect.h"
@@ -35,6 +36,7 @@ class testApp : public ofBaseApp{
         */
         vector<Boid> boids;
         vector<Blob> blobs;
+        vector<Boundaries> bounds;
     
         /* KINECTLESS
 

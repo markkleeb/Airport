@@ -16,7 +16,9 @@
 class Boid {
 public:
 	Boid();
-	
+    Boid(float _x, float _y);
+    Boid(float _x, float _y, float _vX, float _vY);
+    
 	void update();
 	void draw();
 	

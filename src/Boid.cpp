@@ -24,6 +24,35 @@ Boid::Boid() {
     maxforce = 0.1;
 }
 
+Boid::Boid(float _x, float _y) {
+    
+    loc.x = _x;
+	loc.y = _y;
+    vel.x = ofRandom(-2, 2);
+    vel.y = ofRandom(-2, 2);
+    
+	acc = -0.01;
+	
+	cout << loc.x << ", " << loc.y << endl;
+    r = 3.0;
+    maxspeed = 2;
+    maxforce = 0.1;
+}
+
+Boid::Boid(float _x, float _y, float _vX, float _vY) {
+    
+    loc.x = _x;
+	loc.y = _y;
+    vel.x = ofRandom(-2, 2);
+    vel.y = ofRandom(-2, 2);
+    
+	acc = -0.01;
+	
+	cout << loc.x << ", " << loc.y << endl;
+    r = 3.0;
+    maxspeed = 2;
+    maxforce = 0.1;
+}
 
 // Method to update location
 void Boid::update() {

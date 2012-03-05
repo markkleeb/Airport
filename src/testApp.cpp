@@ -63,6 +63,11 @@ void testApp::setup(){
         
     }
     
+    bounds.push_back(Boundaries(0, 0, ofGetWindowWidth(), 0));
+    bounds.push_back(Boundaries(ofGetWindowWidth(), 0, ofGetWindowWidth(), ofGetWindowHeight()));
+    bounds.push_back(Boundaries(ofGetWindowWidth(), ofGetWindowHeight(), 0, ofGetWindowHeight()));
+    bounds.push_back(Boundaries(0, ofGetWindowHeight(), 0, 0));
+        //bounds.push_back(Boundaries(ofGetWindowWidth(), 0, ofGetWindowWidth(), ofGetWindowHeight()));
 
 }
 
@@ -156,7 +161,7 @@ void testApp::draw(){
     
 //    cout << " " << ofGetFrameNum();
     */
-    if(ofGetFrameNum()%120 == 1){
+    if(ofGetFrameNum()%1000 == 1){
         Boid b;
 		boids.push_back( b );
     }
@@ -170,6 +175,9 @@ void testApp::draw(){
     }
 	capture();
     
+    for (int i=0; i<bounds.size(); i++) {
+        bounds[i].draw();
+    }
    
 
 }
