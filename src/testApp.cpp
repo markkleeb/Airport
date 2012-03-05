@@ -1,5 +1,6 @@
 #include "testApp.h"
 
+
 //--------------------------------------------------------------
 void testApp::setup(){
     
@@ -43,18 +44,16 @@ void testApp::setup(){
     
 	framenum=0;
 	doCapture=false;
-	
+    
 	
 		Boid b;
 		boids.push_back( b );
 	
-    for(int i = 0; i < 10; i ++){
+       
+    
+ 
         
-        Blob b;
-        blobs.push_back( b );
-        
-        
-    }
+    
     
 
 }
@@ -104,19 +103,50 @@ void testApp::update(){
 		contourFinder.findContours(grayImage, 10, (kinect.width*kinect.height)/2, 20, false);
 	}
 
+    
+    for(int i = 0; i < contourFinder.blobs.size(); i ++){
+        
+        ofxCvBlob temp = contourFinder.blobs[i];
+        
+        // loop through all points and adde very point to newly created ofPolyline
+        
+        // for(int j = 0; j < planes.size(); j++)
+        // {
+        //      if(pointInPolygon(temp.pts, planes[j].loc))
+        //      {
+        //          planes[j].turnAround();
+        //      }
+        
+      //  cout<<"Number of points for object "<<i<<": "<<temp.nPts<<"\n";
+    
+        
+        
+    }
+    
 
     for(int i=0; i<boids.size(); i++)
 	{
 	
 		boids[i].update();
-	
+        
+       
+       
     
-        for(int j = 0; j<blobs.size(); j++)
+        for(int j = 0; j<contourFinder.blobs.size(); j++)
         {
             
-            boids[i].intersects(blobs[j]);
+            
+            ofxCvBlob temp = contourFinder.blobs[j];
+             ofPolyline l;
+            l.addVertexes(temp.pts);
+        
+            boids[i].intersects(l);
+            
         }
+        
+      
     }
+
 }
 
 //--------------------------------------------------------------
@@ -316,9 +346,12 @@ void testApp::kinectImage(){
 
     
     if(kinectOn) {
-        grayImage.draw(0, 0);
+      grayImage.draw(0, 0);
+        contourFinder.draw(0, 0);
+        
     }
     
 }
+
 
 

@@ -31,6 +31,7 @@ class testApp : public ofBaseApp{
         ofxKinect kinect;
     
         vector<Boid> boids;
+        vector<ofxCvBlob> cvBlobs;
         vector<Blob> blobs;
     
     
@@ -41,10 +42,15 @@ class testApp : public ofBaseApp{
         ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
         
         ofxCvContourFinder contourFinder;
+        ofxCvBlob           CvBlob;
+    
+   // Boid boid;
         
         bool bThreshWithOpenCV;
         bool bDrawPointCloud;
-    bool kinectOn;
+        bool kinectOn;
+    
+        ofPoint overlap(ofxCvBlob b1, ofxCvBlob b2);
         
         int nearThreshold;
         int farThreshold;

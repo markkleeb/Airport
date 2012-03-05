@@ -14,12 +14,13 @@
 
 class Blob {
 public:
-	Blob();
+	Blob(vector<ofPoint>);
 	
 	void update();
 	void draw();
 	ofPoint loc;
 	float r;
+    vector<ofPoint> points;
 };
 
 
