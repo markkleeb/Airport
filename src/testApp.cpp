@@ -55,13 +55,13 @@ void testApp::setup(){
 		Boid b;
 		boids.push_back( b );
 	
-    for(int i = 0; i < 10; i ++){
+    /*for(int i = 0; i < 10; i ++){
         
         Blob b;
         blobs.push_back( b );
         
         
-    }
+    }*/
     
     bounds.push_back(Boundaries(0, 0, ofGetWindowWidth(), 0));
     bounds.push_back(Boundaries(ofGetWindowWidth(), 0, ofGetWindowWidth(), ofGetWindowHeight()));
@@ -161,10 +161,10 @@ void testApp::draw(){
     
 //    cout << " " << ofGetFrameNum();
     */
-    if(ofGetFrameNum()%1000 == 1){
-        Boid b;
-		boids.push_back( b );
-    }
+//    if(ofGetFrameNum()%1000 == 1){
+//        Boid b;
+//		boids.push_back( b );
+//    }
 	
 	for(int i=0; i<boids.size(); i++) {
 		boids[i].draw();
@@ -173,7 +173,7 @@ void testApp::draw(){
     for(int i=0; i<blobs.size(); i ++){
         blobs[i].draw();
     }
-	capture();
+//	capture();
     
     for (int i=0; i<bounds.size(); i++) {
         bounds[i].draw();
