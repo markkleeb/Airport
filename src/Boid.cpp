@@ -19,7 +19,7 @@ Boid::Boid() {
 	acc = 0;
 	
     r = 5.0;
-    maxspeed = 2;
+    maxspeed = 2.0;
     maxforce = 0.1;
     checkL = 30;
     wandertheta = 0.0;
@@ -80,7 +80,8 @@ void Boid::draw() {
 	ofDisableAlphaBlending();
 }
 
-void Boid::intersects(ofPolyline l){
+void Boid::intersects(ofxCvContourFinder& _cv){
+    
     
     projected = false;
     
@@ -105,54 +106,40 @@ void Boid::intersects(ofPolyline l){
     
 
     
-    
-
-  
-   ofxCvBlob check;
-    
-    check.centroid.x = loc.x;
-    check.centroid.y = loc.y;
-    
-    for(int i = 0; i < p.size(); i++){
-        check.pts.push_back(p[i]);
-    }
-    
-    
-    
-    
-    ofPoint heading = loc + vel;  // A vector pointing from the location to where the boid is heading
-    float d = ofDist(loc.x, loc.y, heading.x, heading.y); // Distance from the target is the magnitude of the vector
+    ofPoint heading = loc + vel*25;  // A vector pointing from the location to where the boid is heading
+    /*
+     float d = ofDist(loc.x, loc.y, heading.x, heading.y); // Distance from the target is the magnitude of the vector
 	heading /= d;
+    */
+    
     
     ofSetColor(255, 0, 0);
-    ofLine(loc.x, loc.y, heading.x, heading.y);
+    ofRect(loc.x, loc.y, 100, 100);
   
-    for ( int i = 0; i < contourFinder.blobs.size(); i++ ) {
+    
+    for ( int i = 0; i < _cv.blobs.size(); i++ ) {
+        ofxCvBlob temp = _cv.blobs[i];
+        ofPolyline l;
+        l.addVertexes(temp.pts);
         
-        projection = overlap(check,contourFinder.blobs[i]);
-        if ( (projection.x != 0) || (projection.y != 0) ) { //overlapping so steer away
-            projected = true;
-            projection.normalize();
-            force = lateral;
-            force.normalize();
-            force *= projection.dot(force) ;
-            force.limit(maxforce);
-            acc+=force;
-        }
+        if(l.inside(heading))
+        {   //vel *= -1;
+            ofPoint force = _cv.blobs[i].centroid - heading;
+            vel = vel + force.normalize();
+            cout << "bounce!\n";
+        }        
     }
-    if ( projected == false ) { //if there is no objects to steer around, wander
-        wander();
-    }
-    
-
-    
+  
 
 
     
-    
-//   if(l.inside(ray))
-//    {vel *= -1;
-//    }
+ 
+  /*  
+   else{
+       wander();
+       cout << "wandering!\n";
+   }
+   */
   //  if(heading.x >=  b.loc.x && heading.x <= b.loc.x +10 && heading.y == b.loc.y) vel.x +=2.1;
   //  if(heading.x <= b.loc.x && heading.x >= b.loc.x -10 && heading.y == b.loc.y) vel.x -=2.1;
   //  if(heading.y >= b.loc.y && heading.y <= b.loc.y +10 && heading.x == b.loc.x) vel.y +=2.1;
@@ -167,8 +154,8 @@ void Boid::intersects(ofPolyline l){
 //    else{
 //        return;
 //    }
-    vel.x = ofClamp(vel.x, -maxspeed, maxspeed);  // Limit speed
-	vel.y = ofClamp(vel.y, -maxspeed, maxspeed);  // Limit speed
+   // vel.x = ofClamp(vel.x, -maxspeed, maxspeed);  // Limit speed
+//	vel.y = ofClamp(vel.y, -maxspeed, maxspeed);  // Limit speed
 
     
     
@@ -223,7 +210,7 @@ ofPoint Boid::steer(ofPoint target, Boolean slowdown) {
 }
 
     
-
+/*
     
 ofPoint Boid::overlap(ofxCvBlob ob1, ofxCvBlob ob2) { //ob1 is one that is projected (moves)
     
@@ -247,7 +234,7 @@ ofPoint Boid::overlap(ofxCvBlob ob1, ofxCvBlob ob2) { //ob1 is one that is proje
         for ( int i = 0; i < ob1.pts.size(); i++ ) {
             pt = ob1.pts[i] + ofPoint(ob1.centroid.x,ob1.centroid.y);
             dt = pt.dot(nor);
-            if ( dt < low1 ) { low1 = dt; }
+            if ( dt < low1 ) { low1 = dt; }  //why?
             if ( dt > high1 ) { high1 = dt; }
         }
         low2 = 90000000;
@@ -353,7 +340,7 @@ ofPoint Boid::overlap(ofxCvBlob ob1, ofxCvBlob ob2) { //ob1 is one that is proje
     return projection;
 }
 
-
+*/
     
 
 

@@ -129,20 +129,9 @@ void testApp::update(){
 	
 		boids[i].update();
         
-       
-       
-    
-        for(int j = 0; j<contourFinder.blobs.size(); j++)
-        {
+            boids[i].intersects(contourFinder);
             
-            
-            ofxCvBlob temp = contourFinder.blobs[j];
-             ofPolyline l;
-            l.addVertexes(temp.pts);
         
-            boids[i].intersects(l);
-            
-        }
         
       
     }

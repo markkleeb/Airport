@@ -40,14 +40,13 @@ public:
     
     vector<ofPoint> p;
     
-    ofxCvContourFinder contourFinder;
  
-    ofPoint overlap(ofxCvBlob b1, ofxCvBlob b2);
+  //  ofPoint overlap(ofxCvBlob b1, ofxCvBlob b2);
     
     ofPoint steer(ofPoint target, Boolean slowdown);
     
     
-    void intersects(ofPolyline b);
+    void intersects(ofxCvContourFinder& _cf);
 };
 
 #endif
