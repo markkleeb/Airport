@@ -45,6 +45,8 @@ void testApp::setup(){
 	framenum=0;
 	doCapture=false;
     
+    newPath();
+    
 	
 		Boid b;
 		boids.push_back( b );
@@ -61,7 +63,7 @@ void testApp::setup(){
 //--------------------------------------------------------------
 void testApp::update(){
     
-    ofBackground(0, 200, 0);
+    ofBackground(0, 0, 0);
     
     kinect.update();
     
@@ -129,7 +131,7 @@ void testApp::update(){
 	
 		boids[i].update();
         
-            boids[i].intersects(contourFinder);
+            boids[i].intersects(contourFinder, path);
             
         
         
@@ -141,6 +143,7 @@ void testApp::update(){
 //--------------------------------------------------------------
 void testApp::draw(){
     
+    path.draw();
 
     
     ofSetColor(255, 255, 255);
@@ -148,29 +151,14 @@ void testApp::draw(){
 	kinectImage(); 
     
     
-    // draw instructions
-	ofSetColor(255, 255, 255);
-	stringstream reportStream;
-	reportStream << "accel is: " << ofToString(kinect.getMksAccel().x, 2) << " / "
-	<< ofToString(kinect.getMksAccel().y, 2) << " / "
-	<< ofToString(kinect.getMksAccel().z, 2) << endl
-	<< "press p to switch between images and point cloud, rotate the point cloud with the mouse" << endl
-	<< "using opencv threshold = " << bThreshWithOpenCV <<" (press spacebar)" << endl
-	<< "set near threshold " << nearThreshold << " (press: + -)" << endl
-	<< "set far threshold " << farThreshold << " (press: < >) num blobs found " << contourFinder.nBlobs
-	<< ", fps: " << ofGetFrameRate() << endl
-        << "press c to close the connection and o to open it again, connection is: " << kinect.isConnected() << endl
-	<< "press UP and DOWN to change the tilt angle: " << angle << " degrees" << endl;
-	
-    ofDrawBitmapString(reportStream.str(),20,652);
-    
+       
     
 //    cout << " " << ofGetFrameNum();
     
-    if(ofGetFrameNum()%120 == 1){
+    /*if(ofGetFrameNum()%120 == 1){
         Boid b;
 		boids.push_back( b );
-    }
+    }*/
 	
 	for(int i=0; i<boids.size(); i++) {
 		boids[i].draw();
@@ -335,12 +323,42 @@ void testApp::kinectImage(){
 
     
     if(kinectOn) {
-      grayImage.draw(0, 0);
+      //grayImage.draw(0, 0);
         contourFinder.draw(0, 0);
+        
+        
+        // draw instructions
+        ofSetColor(255, 255, 255);
+        stringstream reportStream;
+        reportStream << "accel is: " << ofToString(kinect.getMksAccel().x, 2) << " / "
+        << ofToString(kinect.getMksAccel().y, 2) << " / "
+        << ofToString(kinect.getMksAccel().z, 2) << endl
+        << "press p to switch between images and point cloud, rotate the point cloud with the mouse" << endl
+        << "using opencv threshold = " << bThreshWithOpenCV <<" (press spacebar)" << endl
+        << "set near threshold " << nearThreshold << " (press: + -)" << endl
+        << "set far threshold " << farThreshold << " (press: < >) num blobs found " << contourFinder.nBlobs
+        << ", fps: " << ofGetFrameRate() << endl
+        << "press c to close the connection and o to open it again, connection is: " << kinect.isConnected() << endl
+        << "press UP and DOWN to change the tilt angle: " << angle << " degrees" << endl;
+        
+        ofDrawBitmapString(reportStream.str(),20,652);
+
         
     }
     
 }
 
 
+void testApp::newPath() {
+    
+    float offset = 60;
+    path.addPoint(800, 700);
+    path.addPoint(200, 700);
+    path.addPoint(200, 400);
+    path.addPoint(1200, 400);
+    path.addPoint(1200, 150);
+    path. addPoint(200, 150);
+    
+    
+}
 

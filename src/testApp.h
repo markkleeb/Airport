@@ -5,6 +5,8 @@
 #include "Blob.h"
 #include "ofxOpenCv.h"
 #include "ofxKinect.h"
+#include "Path.h"
+
 
 
 class testApp : public ofBaseApp{
@@ -27,6 +29,8 @@ class testApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+    
+    void newPath();
 		
         ofxKinect kinect;
     
@@ -34,6 +38,7 @@ class testApp : public ofBaseApp{
         vector<ofxCvBlob> cvBlobs;
         vector<Blob> blobs;
     
+    Path path;
     
         ofxCvColorImage colorImg;
         

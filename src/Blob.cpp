@@ -32,7 +32,7 @@ void Blob::draw(){
     
     ofPushMatrix();
     //ofTranslate(loc.x, loc.y);
-    ofSetColor(255, 0, 0);
+    ofSetColor(255, 255, 255);
     ofNoFill();
     ofBeginShape();
     for(int i; i < points.size(); i ++){

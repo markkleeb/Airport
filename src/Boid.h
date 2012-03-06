@@ -17,6 +17,7 @@
 #include "ofxCvContourFinder.h"
 #include "ofxOpenCv.h"
 #include "ofxKinect.h"
+#include "Path.h"
 
 
 class Boid {
@@ -30,11 +31,15 @@ public:
 	ofPoint loc;
 	ofPoint vel;
 	ofPoint acc;
+    ofPoint normal;
 	float r;
 	float maxforce;
 	float maxspeed;
     float wandertheta;
     float checkL;
+    
+    ofPoint follow(Path p);
+    ofPoint getNormalPoint(ofPoint a, ofPoint b, ofPoint c);
     
     bool projected;
     
@@ -46,7 +51,7 @@ public:
     ofPoint steer(ofPoint target, Boolean slowdown);
     
     
-    void intersects(ofxCvContourFinder& _cf);
+    void intersects(ofxCvContourFinder& _cf, Path _path);
 };
 
 #endif

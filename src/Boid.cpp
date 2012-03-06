@@ -11,8 +11,8 @@
 
 Boid::Boid() {
 
-    loc.x = 600;
-	loc.y = 400;
+    loc.x = 800;
+	loc.y = 700;
     vel.x = ofRandom(-2, 2);
     vel.y = ofRandom(-2, 2);
     
@@ -43,6 +43,8 @@ void Boid::update() {
     
     acc = 0;  // Reset accelertion to 0 each cycle
 	
+    
+//wrap borders    
 //	if (loc.x < -r) loc.x = ofGetWidth()+r;
 //    if (loc.y < -r) loc.y = ofGetHeight()+r;
 //    if (loc.x > ofGetWidth()+r) loc.x = -r;
@@ -66,7 +68,7 @@ void Boid::draw() {
 	float heading2D = ofRadToDeg(theta)+90;
 	
 	ofEnableAlphaBlending();
-    ofSetColor(0, 0, 255);
+    ofSetColor(255, 255, 255);
     ofFill();
     ofPushMatrix();
     ofTranslate(loc.x, loc.y);
@@ -78,10 +80,15 @@ void Boid::draw() {
     ofEndShape(true);
     ofPopMatrix();
 	ofDisableAlphaBlending();
+    
 }
 
-void Boid::intersects(ofxCvContourFinder& _cv){
+void Boid::intersects(ofxCvContourFinder& _cv, Path _path){
     
+    
+    ofPoint f = follow(_path);
+  
+    acc = acc + f;
     
     projected = false;
     
@@ -124,42 +131,95 @@ void Boid::intersects(ofxCvContourFinder& _cv){
         
         if(l.inside(heading))
         {   //vel *= -1;
-            ofPoint force = _cv.blobs[i].centroid - heading;
+            ofPoint force = heading - _cv.blobs[i].centroid;
             vel = vel + force.normalize();
             cout << "bounce!\n";
         }        
+        /*else{
+            wander();
+            cout << "wandering!\n";
+       }*/ 
+        
+        
+    }    
+    
+}
+
+ofPoint Boid::follow(Path _p) {
+    
+    ofPoint predict = vel;
+    predict.normalize();
+    predict *= 25;
+    ofPoint predictLoc = loc + predict;
+    
+    ofPoint target;
+    normal.set(0,0);
+    target.set(0,0);
+    float worldRecord = 10000000;
+    
+    
+    for(int i = 0; i< _p.points.size(); i++){
+        ofPoint a = _p.points[i];
+        int z = (i+1) % _p.points.size();
+        ofPoint b = _p.points[z];
+        
+        ofPoint normalPoint = getNormalPoint(predictLoc, a, b);
+        
+        ofPoint dir = b - a ;
+        
+        if(normalPoint.x < min(a.x, b.x) || normalPoint.x > max(a.x, b.x) || normalPoint.y < min(a.y,b.y) || normalPoint.y > max(a.y,b.y)) {
+           
+            normalPoint = b;
+            
+            a = _p.points[z];
+            b = _p.points[z+1];
+            dir = b-a;
+        }
+        
+        float d = ofDist(predictLoc.x, predictLoc.y, normalPoint.x, normalPoint.y);
+        
+        
+        if(d < worldRecord){
+            worldRecord = d;
+            normal = normalPoint;
+            
+            dir.normalize();
+            dir *= 25;
+            target = normal;
+            target += dir;
+        }
+        
     }
-  
-
-
+    ofPushMatrix();
+    ofTranslate(loc.x, loc.y);
+    ofEnableAlphaBlending();
+    ofSetLineWidth(3);
+    cout << "Normal = " << normal.x << " , " << normal.y << "\n" << "PredictLoc " << predictLoc.x << " , " << predictLoc.y << "\n" << "Target = " << target.x << " , " << target.y << "\n";
+    ofFill();
+    ofSetColor(255, 255, 255);
+    ofEllipse(normal.x, normal.y, 4, 4);
+    ofLine(predictLoc.x, predictLoc.y, target.x, target.y);
+    if(worldRecord > _p.radius) ofSetColor(255, 0, 0);
+    ofNoFill();
+    ofEllipse(target.x, target.y, 8, 8);
+    ofDisableAlphaBlending();
+    ofPopMatrix();
     
- 
-  /*  
-   else{
-       wander();
-       cout << "wandering!\n";
-   }
-   */
-  //  if(heading.x >=  b.loc.x && heading.x <= b.loc.x +10 && heading.y == b.loc.y) vel.x +=2.1;
-  //  if(heading.x <= b.loc.x && heading.x >= b.loc.x -10 && heading.y == b.loc.y) vel.x -=2.1;
-  //  if(heading.y >= b.loc.y && heading.y <= b.loc.y +10 && heading.x == b.loc.x) vel.y +=2.1;
-  //  if(heading.y <= b.loc.y && heading.y >= b.loc.y -10 && heading.x == b.loc.x) vel.y -=2.1;
-  //  if(heading.x > ofGetWindowWidth() || heading.x < 0) vel.x *= -1.1;
-  //  if(heading.y > ofGetWindowHeight() || heading.y < 0) vel.y *= -1.1;
-    
-    //instead of adding to vel vectors, maybe applyForce laterally?
-
-    
-    
-//    else{
-//        return;
-//    }
-   // vel.x = ofClamp(vel.x, -maxspeed, maxspeed);  // Limit speed
-//	vel.y = ofClamp(vel.y, -maxspeed, maxspeed);  // Limit speed
-
     
     
 }
+           
+ofPoint Boid::getNormalPoint(ofPoint p, ofPoint a, ofPoint b) {
+               // Vector from a to p
+               ofPoint ap = p -  a;
+               // Vector from a to b
+               ofPoint ab = b -  a;
+               ab.normalize(); // Normalize the line
+               // Project vector "diff" onto line by using the dot product
+               ab *= ap.dot(ab);
+               ofPoint normalPoint = a + ab;
+               return normalPoint;
+           }
 
 
 void Boid::wander() {
