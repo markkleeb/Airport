@@ -16,12 +16,14 @@ Boid::Boid() {
 	loc.y = 700;
     //vel.x = ofRandom(-2, 2);
     //vel.y = ofRandom(-2, 2);
+   
     
 	acc = 0;
 	
     r = 5.0;
     maxspeed = 1.5;
     maxforce = 0.1;
+     vel = ofPoint(maxspeed, 0);
     wandertheta = 0.0;
     
 }
@@ -84,12 +86,13 @@ void Boid::draw() {
 
 void Boid::intersects(ofxCvContourFinder& _cv, Path* _path){
     
+    follow( _path);
     
-    ofPoint f = follow( _path );
+  //  ofPoint f = follow( _path );
   
-    acc = acc + f;
+   // acc = acc + f;
     
-    cout<< "FORCE = " << f.x << " , " << f.y << "\n";
+  //  cout<< "FORCE = " << f.x << " , " << f.y << "\n";
     
     
     ofPoint heading = loc + vel*25;  // A vector pointing from the location to where the boid is heading
@@ -116,7 +119,7 @@ void Boid::intersects(ofxCvContourFinder& _cv, Path* _path){
     
 }
 
-ofPoint Boid::follow(Path* p) {
+void Boid::follow(Path* p) {
     ofPoint predict = vel;
     Path::normalize(&predict);
     predict *= 25;

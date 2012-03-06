@@ -33,6 +33,7 @@ public:
 	ofPoint loc;
 	ofPoint vel;
 	ofPoint acc;
+    
     ofPoint normal;
     ofPoint target;
     ofPoint predictLoc;
@@ -43,7 +44,7 @@ public:
     float wandertheta;
     float record;
     
-    ofPoint follow(Path* p);
+    void follow(Path* p);
     ofPoint getNormalPoint(ofPoint a, ofPoint b, ofPoint c);
     
     bool projected;

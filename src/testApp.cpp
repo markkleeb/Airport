@@ -334,7 +334,7 @@ void testApp::newPath() {
     
     float offset = 60;
    path = new Path();
-    path->addPoint(800, 700);
+    path->addPoint(1200, 700);
     path->addPoint(200, 700);
     path->addPoint(200, 400);
     path->addPoint(1200, 400);
