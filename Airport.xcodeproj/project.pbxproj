@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4108C59E15030C88008CF368 /* Boundaries.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4108C59C15030C88008CF368 /* Boundaries.cpp */; };
+		41FA764615055441006293D6 /* Airports.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41FA764415055441006293D6 /* Airports.cpp */; };
 		512B926A14F864930061B9BC /* Boid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 512B926814F864930061B9BC /* Boid.cpp */; };
 		512B926D14F973E00061B9BC /* Blob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 512B926C14F973E00061B9BC /* Blob.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
@@ -62,6 +63,8 @@
 /* Begin PBXFileReference section */
 		4108C59C15030C88008CF368 /* Boundaries.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Boundaries.cpp; path = ../Boundaries.cpp; sourceTree = "<group>"; };
 		4108C59D15030C88008CF368 /* Boundaries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Boundaries.h; path = ../Boundaries.h; sourceTree = "<group>"; };
+		41FA764415055441006293D6 /* Airports.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Airports.cpp; sourceTree = "<group>"; };
+		41FA764515055441006293D6 /* Airports.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Airports.h; sourceTree = "<group>"; };
 		512B926814F864930061B9BC /* Boid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Boid.cpp; sourceTree = "<group>"; };
 		512B926914F864930061B9BC /* Boid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Boid.h; sourceTree = "<group>"; };
 		512B926B14F973D50061B9BC /* Blob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Blob.h; sourceTree = "<group>"; };
@@ -173,15 +176,17 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				4108C59C15030C88008CF368 /* Boundaries.cpp */,
+				41FA764515055441006293D6 /* Airports.h */,
+				41FA764415055441006293D6 /* Airports.cpp */,
 				4108C59D15030C88008CF368 /* Boundaries.h */,
+				4108C59C15030C88008CF368 /* Boundaries.cpp */,
 				512B926914F864930061B9BC /* Boid.h */,
 				512B926814F864930061B9BC /* Boid.cpp */,
 				512B926B14F973D50061B9BC /* Blob.h */,
 				512B926C14F973E00061B9BC /* Blob.cpp */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
-				E4B69E1E0A3A1BDC003C02F2 /* testApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* testApp.h */,
+				E4B69E1E0A3A1BDC003C02F2 /* testApp.cpp */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -284,6 +289,7 @@
 				512B926A14F864930061B9BC /* Boid.cpp in Sources */,
 				512B926D14F973E00061B9BC /* Blob.cpp in Sources */,
 				4108C59E15030C88008CF368 /* Boundaries.cpp in Sources */,
+				41FA764615055441006293D6 /* Airports.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

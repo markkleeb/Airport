@@ -8,7 +8,6 @@
 
 #include <iostream>
 #include "Boundaries.h"
-#include "ofMain.h"
 
 Boundaries::Boundaries(int _xStart, int _yStart, int _xEnd, int _yEnd) {
     xStart = _xStart;
@@ -31,6 +30,6 @@ void Boundaries::draw() {
     ofLine(xStart, yStart, xEnd, yEnd);
 }
 
-bool Boundaries::intersect() {
+bool Boundaries::intersect(ofPoint _vector) {
     return true;
 }

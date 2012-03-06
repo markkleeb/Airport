@@ -20,6 +20,7 @@ public:
 	void draw();
 	ofPoint loc;
 	float r;
+    ofPoint dist(float x, float y);
 };
 
 

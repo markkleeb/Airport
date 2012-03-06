@@ -5,7 +5,7 @@
 //  Created by Ali Sajjadi on 3/3/12.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
-
+#include "ofMain.h"
 #ifndef Airport_Boundaries_cpp
 #define Airport_Boundaries_cpp
 
@@ -17,7 +17,7 @@ public:
     Boundaries(int _xStart, int _yStart, int _xEnd, int _yEnd, int _width);
     
     void draw();
-    bool intersect();
+    bool intersect(ofPoint _vector);
 };
 
 #endif

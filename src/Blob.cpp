@@ -38,3 +38,20 @@ void Blob::draw(){
     
     
 }
+
+ofPoint Blob::dist(float _x, float _y) {
+    ofPoint shortestPoint = (1000, 1000, 1000.0);
+    for (int i=0; i<360; i++) {
+        float angle = ofDegToRad(i);
+        
+        float circY = sin(angle) * r;
+        float circX = cos(angle) * r;
+        float dist = ofDist(_x, _y, circX, circY);
+        if (dist < shortestPoint.z) {
+            shortestPoint.x = circX;
+            shortestPoint.y = circY;
+            shortestPoint.z = dist;
+        }
+    }
+    return shortestPoint;
+}

@@ -14,22 +14,20 @@
 #include "Blob.h"
 
 class Boid {
-public:
-	Boid();
-    Boid(float _x, float _y);
-    Boid(float _x, float _y, float _vX, float _vY);
-    
-	void update();
-	void draw();
-	
-	ofPoint loc;
+  	ofPoint loc;
 	ofPoint vel;
 	ofPoint acc;
 	float r;
 	float maxforce;
 	float maxspeed;
+  
     
-    
+public:
+	Boid();
+    Boid(float _x, float _y);
+
+	void update();
+	void draw();
     void intersects(Blob b);
 };
 

@@ -62,13 +62,15 @@ void testApp::setup(){
         
         
     }*/
-    
-    bounds.push_back(Boundaries(0, 0, ofGetWindowWidth(), 0));
-    bounds.push_back(Boundaries(ofGetWindowWidth(), 0, ofGetWindowWidth(), ofGetWindowHeight()));
-    bounds.push_back(Boundaries(ofGetWindowWidth(), ofGetWindowHeight(), 0, ofGetWindowHeight()));
-    bounds.push_back(Boundaries(0, ofGetWindowHeight(), 0, 0));
-        //bounds.push_back(Boundaries(ofGetWindowWidth(), 0, ofGetWindowWidth(), ofGetWindowHeight()));
-
+        // CREATE BOUNDARIES - STATIC
+    float width = ofGetWindowWidth() / 4;
+    float height = ofGetWindowHeight() / 3;
+    bounds.push_back(Boundaries(width, 0, width*4, 0));
+    bounds.push_back(Boundaries(width*4, 0, width*4, height*3));
+    bounds.push_back(Boundaries(width*3, height*3, 0, height*3));
+    bounds.push_back(Boundaries(0, height*3, 0, 0));
+    bounds.push_back(Boundaries(0, height, width*3, height));
+    bounds.push_back(Boundaries(width, height*2, width*4, height*2));
 }
 
 //--------------------------------------------------------------
@@ -117,15 +119,15 @@ void testApp::update(){
 	}
      */
 
+    
     for(int i=0; i<boids.size(); i++)
 	{
-	
-		boids[i].update();
-	
-    
+        boids[i].update();
         for(int j = 0; j<blobs.size(); j++)
         {
-            
+            for (int k = 0; k < bounds.size(); k++) {
+                    //boids[i].intersects(bounds.)
+            }
             boids[i].intersects(blobs[j]);
         }
     }
