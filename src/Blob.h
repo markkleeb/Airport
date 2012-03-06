@@ -12,6 +12,7 @@
 
 #include "ofMain.h"
 
+
 class Blob {
 public:
 	Blob(vector<ofPoint>);

@@ -38,7 +38,7 @@ class testApp : public ofBaseApp{
         vector<ofxCvBlob> cvBlobs;
         vector<Blob> blobs;
     
-    Path path;
+    Path* path;
     
         ofxCvColorImage colorImg;
         

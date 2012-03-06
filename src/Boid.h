@@ -26,19 +26,24 @@ public:
 	
 	void update();
 	void draw();
+    void seek(ofPoint target);
+    void arrive(ofPoint target);
     void wander();
 	
 	ofPoint loc;
 	ofPoint vel;
 	ofPoint acc;
     ofPoint normal;
+    ofPoint target;
+    ofPoint predictLoc;
+    ofPoint dir;
 	float r;
 	float maxforce;
 	float maxspeed;
     float wandertheta;
-    float checkL;
+    float record;
     
-    ofPoint follow(Path p);
+    ofPoint follow(Path* p);
     ofPoint getNormalPoint(ofPoint a, ofPoint b, ofPoint c);
     
     bool projected;
@@ -48,10 +53,10 @@ public:
  
   //  ofPoint overlap(ofxCvBlob b1, ofxCvBlob b2);
     
-    ofPoint steer(ofPoint target, Boolean slowdown);
+    ofPoint steer(ofPoint target, bool slowdown);
     
     
-    void intersects(ofxCvContourFinder& _cf, Path _path);
+    void intersects(ofxCvContourFinder& _cf, Path* _path);
 };
 
 #endif

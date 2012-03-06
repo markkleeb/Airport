@@ -8,20 +8,20 @@
  */
 
 #include "Boid.h"
+#include "Path.h"
 
 Boid::Boid() {
 
     loc.x = 800;
 	loc.y = 700;
-    vel.x = ofRandom(-2, 2);
-    vel.y = ofRandom(-2, 2);
+    //vel.x = ofRandom(-2, 2);
+    //vel.y = ofRandom(-2, 2);
     
 	acc = 0;
 	
     r = 5.0;
-    maxspeed = 2.0;
+    maxspeed = 1.5;
     maxforce = 0.1;
-    checkL = 30;
     wandertheta = 0.0;
     
 }
@@ -60,7 +60,6 @@ void Boid::draw() {
     if(loc.x == 0 || loc.x == ofGetWindowWidth()) vel.x *= -1;
     if(loc.y == 0 || loc.y == ofGetWindowHeight()) vel.y *= -1;
 
-	
 
 	
 	float angle = (float)atan2(-vel.y, vel.x);
@@ -83,46 +82,18 @@ void Boid::draw() {
     
 }
 
-void Boid::intersects(ofxCvContourFinder& _cv, Path _path){
+void Boid::intersects(ofxCvContourFinder& _cv, Path* _path){
     
     
-    ofPoint f = follow(_path);
+    ofPoint f = follow( _path );
   
     acc = acc + f;
     
-    projected = false;
+    cout<< "FORCE = " << f.x << " , " << f.y << "\n";
     
-    float checkLength = checkL*vel.length();
-    
-    ofPoint projection;
-    ofPoint force;
-    ofPoint lateral;
-    
-    ofPoint forward = vel.normalize();
-    ofPoint ray = forward;
-    ray = ray*checkLength;
-    lateral = ray;
-    lateral.set(lateral.y, -lateral.x, 0);
-    lateral = lateral*r;
-    
-    
-    p.push_back(ofPoint(lateral.x, lateral.y));
-    p.push_back(ofPoint(-lateral.x, -lateral.y));
-    p.push_back(ofPoint(ray.x-lateral.x,ray.y-lateral.y));
-    p.push_back(ofPoint(ray.x+lateral.x,ray.y+lateral.y));
-    
-
     
     ofPoint heading = loc + vel*25;  // A vector pointing from the location to where the boid is heading
-    /*
-     float d = ofDist(loc.x, loc.y, heading.x, heading.y); // Distance from the target is the magnitude of the vector
-	heading /= d;
-    */
     
-    
-    ofSetColor(255, 0, 0);
-    ofRect(loc.x, loc.y, 100, 100);
-  
     
     for ( int i = 0; i < _cv.blobs.size(); i++ ) {
         ofxCvBlob temp = _cv.blobs[i];
@@ -131,8 +102,8 @@ void Boid::intersects(ofxCvContourFinder& _cv, Path _path){
         
         if(l.inside(heading))
         {   //vel *= -1;
-            ofPoint force = heading - _cv.blobs[i].centroid;
-            vel = vel + force.normalize();
+            ofVec2f force = heading - _cv.blobs[i].centroid;
+            acc = acc + force.normalize();
             cout << "bounce!\n";
         }        
         /*else{
@@ -145,82 +116,80 @@ void Boid::intersects(ofxCvContourFinder& _cv, Path _path){
     
 }
 
-ofPoint Boid::follow(Path _p) {
-    
+ofPoint Boid::follow(Path* p) {
     ofPoint predict = vel;
-    predict.normalize();
+    Path::normalize(&predict);
     predict *= 25;
-    ofPoint predictLoc = loc + predict;
-    
-    ofPoint target;
-    normal.set(0,0);
-    target.set(0,0);
-    float worldRecord = 10000000;
+    predictLoc = loc + predict;
     
     
-    for(int i = 0; i< _p.points.size(); i++){
-        ofPoint a = _p.points[i];
-        int z = (i+1) % _p.points.size();
-        ofPoint b = _p.points[z];
+	
+    // Now we must find the normal to the path from the predicted location
+    // We look at the normal for each line segment and pick out the closest one
+    
+    record = 1000000;  // Start with a very high record distance that can easily be beaten
+	
+    // Loop through all points of the path
+    for (int i = 0; i < p->points.size()-1; i++) {
+		
+		// Look at a line segment
+		ofPoint a = p->points[i];
+		ofPoint b = p->points[i+1];
+		
+		// Get the normal point to that line
+		ofPoint normal = getNormalPoint(predictLoc,a,b);
+		
+		// Check if normal is on line segment
+		float da = ofDist(normal.x, normal.y, a.x, a.y);
+		float db = ofDist(normal.x, normal.y, b.x, b.y);
+		ofPoint line = b-a;
         
-        ofPoint normalPoint = getNormalPoint(predictLoc, a, b);
-        
-        ofPoint dir = b - a ;
-        
-        if(normalPoint.x < min(a.x, b.x) || normalPoint.x > max(a.x, b.x) || normalPoint.y < min(a.y,b.y) || normalPoint.y > max(a.y,b.y)) {
-           
-            normalPoint = b;
-            
-            a = _p.points[z];
-            b = _p.points[z+1];
-            dir = b-a;
-        }
-        
-        float d = ofDist(predictLoc.x, predictLoc.y, normalPoint.x, normalPoint.y);
-        
-        
-        if(d < worldRecord){
-            worldRecord = d;
-            normal = normalPoint;
-            
-            dir.normalize();
-            dir *= 25;
-            target = normal;
-            target += dir;
-        }
-        
+		// If it's not within the line segment, consider the normal to just be the end of the line segment (point b)
+		if (da + db > Path::mag(&line)+1.0) {
+			normal = b;
+		}
+		
+		// How far away are we from the path?
+		float d = ofDist(predictLoc.x, predictLoc.y, normal.x, normal.y);
+		// Did we beat the record and find the closest line segment?
+		if (d < record) {
+			record = d;
+			// If so the target we want to steer towards is the normal
+			target = normal;
+			
+			// Look at the direction of the line segment so we can seek a little bit ahead of the normal
+			dir = line;
+			Path::normalize(&dir);
+			// This is an oversimplification
+			// Should be based on distance to path & velocity
+			dir*=10;
+		}
     }
-    ofPushMatrix();
-    ofTranslate(loc.x, loc.y);
-    ofEnableAlphaBlending();
-    ofSetLineWidth(3);
-    cout << "Normal = " << normal.x << " , " << normal.y << "\n" << "PredictLoc " << predictLoc.x << " , " << predictLoc.y << "\n" << "Target = " << target.x << " , " << target.y << "\n";
-    ofFill();
-    ofSetColor(255, 255, 255);
-    ofEllipse(normal.x, normal.y, 4, 4);
-    ofLine(predictLoc.x, predictLoc.y, target.x, target.y);
-    if(worldRecord > _p.radius) ofSetColor(255, 0, 0);
-    ofNoFill();
-    ofEllipse(target.x, target.y, 8, 8);
-    ofDisableAlphaBlending();
-    ofPopMatrix();
-    
+	
+    // Only if the distance is greater than the path's radius do we bother to steer
+    if (record > p->radius) {
+		target += dir;
+		seek(target);			
+    }
     
     
 }
            
 ofPoint Boid::getNormalPoint(ofPoint p, ofPoint a, ofPoint b) {
-               // Vector from a to p
-               ofPoint ap = p -  a;
-               // Vector from a to b
-               ofPoint ab = b -  a;
-               ab.normalize(); // Normalize the line
-               // Project vector "diff" onto line by using the dot product
-               ab *= ap.dot(ab);
-               ofPoint normalPoint = a + ab;
-               return normalPoint;
-           }
-
+	
+    // Vector from a to p
+    ofPoint ap = p - a;
+	
+    // Vector from a to b
+    ofPoint ab = b - a;
+	
+	Path::normalize(&ab); // Normalize the line
+	
+    // Project vector "diff" onto line by using the dot product
+    ab *= Path::dotproduct(ab, ap);
+	
+    return a + ab;
+}
 
 void Boid::wander() {
     float wanderR = 16.0f;         // Radius for our "wander circle"
@@ -243,164 +212,37 @@ void Boid::wander() {
     
 } 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// A method that calculates a steering vector towards a target
-// Takes a second argument, if true, it slows down as it approaches the target
 
-ofPoint Boid::steer(ofPoint target, Boolean slowdown) {
+ofPoint Boid::steer(ofPoint target, bool slowdown) {
     ofPoint steer;  // The steering vector
-    ofPoint desired = (target - loc);  // A vector pointing from the location to the target
-    float d = desired.length(); // Distance from the target is the magnitude of the vector
-    // If the distance is greater than 0, calc steering (otherwise return zero vector)
+    ofPoint desired = target - loc;  // A vector pointing from the location to the target
+    float d = ofDist(target.x, target.y, loc.x, loc.y); // Distance from the target is the magnitude of the vector
+    
+	// If the distance is greater than 0, calc steering (otherwise return zero vector)
     if (d > 0) {
-        // Normalize desired
-        desired.normalize();
-        // Two options for desired vector magnitude (1 -- based on distance, 2 -- maxspeed)
-        if ((slowdown) && (d < 100.0f)) desired *= (maxspeed*(d/100.0f)); // This damping is somewhat arbitrary
-        else desired *= (maxspeed);
-        // Steering = Desired minus Velocity
-        steer = desired - vel;
-        //steer.add(new PVector(0,1f)); //pull down
-        steer.limit(maxforce);  // Limit to maximum steering force
-        
-    } else {
-        steer = ofPoint(0,0);
+		
+		desired /= d; // Normalize desired
+		// Two options for desired vector magnitude (1 -- based on distance, 2 -- maxspeed)
+		if ((slowdown) && (d < 100.0f)) {
+			desired *= maxspeed * (d/100.0f); // This damping is somewhat arbitrary
+		} else {
+			desired *= maxspeed;
+		}
+		// Steering = Desired minus Velocity
+		steer = desired - vel;
+		steer.x = ofClamp(steer.x, -maxforce, maxforce); // Limit to maximum steering force
+		steer.y = ofClamp(steer.y, -maxforce, maxforce); 
     }
     return steer;
 }
 
-    
-/*
-    
-ofPoint Boid::overlap(ofxCvBlob ob1, ofxCvBlob ob2) { //ob1 is one that is projected (moves)
-    
-    ofPoint nor,pt,projection;
-    float low1,high1,low2,high2,dt; 
-    projection = ofPoint(900000000,0);
-    
-    for (int q = 0; q < ob1.pts.size(); q++ ) {
-        if ( q == (ob1.pts.size()-1) ) {
-            nor = ob1.pts[0] - ob1.pts[q];
-        }
-        else {
-            nor = ob1.pts[q] - ob1.pts[q+1];
-        }
-        nor.set(-nor.y,nor.x,0); //rotate 90 degrees
-        nor.normalize();
-        
-        //set the values so any value will work
-        low1 = 9000000;
-        high1 = -9000000;
-        for ( int i = 0; i < ob1.pts.size(); i++ ) {
-            pt = ob1.pts[i] + ofPoint(ob1.centroid.x,ob1.centroid.y);
-            dt = pt.dot(nor);
-            if ( dt < low1 ) { low1 = dt; }  //why?
-            if ( dt > high1 ) { high1 = dt; }
-        }
-        low2 = 90000000;
-        high2 = -900000000;
-        for ( int i = 0; i < ob2.pts.size(); i++ ) {
-            pt = ob2.pts[i] + ofPoint(ob2.centroid.x,ob2.centroid.y);
-            dt = pt.dot(nor);
-            if ( dt < low2 ) { low2 = dt; }
-            if ( dt > high2 ) { high2 = dt; }
-        }
-        //find projection using min overlap of low1-high1 and low2-high2
-        //ob1 is the one that is projected (moves)
-        float mid1,mid2;
-        mid1 = 0.5f*(low1+high1);
-        mid2 = 0.5f*(low2+high2);
-        if ( mid1 < mid2 ) {
-            if ( high1 < low2 ) { //no overlap
-                return (ofPoint(0,0)); //return a null vector
-            }
-            else { //test to see if projection is smallest
-                if ( (high1-low2) < projection.length() ) { //new smallest projection found
-                    projection = nor;
-                    projection.normalize();
-                    projection *=(-(high1-low2));
-                }
-            }
-        }
-        else {
-            if ( low1 > high2 ) { //no overlap
-                return (ofPoint(0,0)); //return a null vector
-            }
-            else {
-                if ( (high2-low1) < projection.length() ) { //new smallest projection found
-                    projection = nor;
-                    projection.normalize();
-                    projection *= (high2-low1);
-                }
-            }
-        }
-    }
-    
-    //do same for ob2/////////////////////////////////////////////////////////////////////////////
-    for ( int q = 0; q < ob2.pts.size(); q++ ) {
-        //println(ob1.points.size());
-        if ( q == (ob2.pts.size()-1) ) {
-            nor = ob2.pts[0] - ob2.pts[q];
-        }
-        else {
-            nor = ob2.pts[q] - ob2.pts[q+1];
-        }
-        nor.set(-nor.y,nor.x,0); //rotate 90 degrees
-        nor.normalize();
-        nor *= 100;
-        nor.normalize();
-        //set the values so any value will work
-        low1 = 90000000;
-        high1 = -900000000;
-        for ( int i = 0; i < ob1.pts.size(); i++ ) {
-            pt = ob1.pts[i] + ofPoint(ob1.centroid.x, ob1.centroid.y);
-            dt = pt.dot(nor);
-            if ( dt < low1 ) { low1 = dt; }
-            if ( dt > high1 ) { high1 = dt; }
-        }
-        low2 = 900000000;
-        high2 = -900000000;
-        for ( int i = 0; i < ob2.pts.size(); i++ ) {
-            pt = ob2.pts[i] + ofPoint(ob2.centroid.x,ob2.centroid.y);
-            dt = pt.dot(nor);
-            if ( dt < low2 ) { low2 = dt; }
-            if ( dt > high2 ) { high2 = dt; }
-        }
-        //find projection using min overlap of low1-high1 and low2-high2
-        //ob1 is the one that is projected (moves)
-        float mid1,mid2;
-        mid1 = 0.5f*(low1+high1);
-        mid2 = 0.5f*(low2+high2);
-        if ( mid1 < mid2 ) {
-            if ( high1 < low2 ) { //no overlap
-                return (ofPoint(0,0)); //return a null vector
-            }
-            else { //test to see if projection is smallest
-                if ( (high1-low2) < projection.length() ) { //new smallest projection found
-                    projection = nor;
-                    projection.normalize();
-                    projection *= (-(high1-low2));
-                }
-            }
-        }
-        else {
-            if ( low1 > high2 ) { //no overlap
-                return (ofPoint(0,0)); //return a null vector
-            }
-            else {
-                if ( (high2-low1) < projection.length()) { //new smallest projection found
-                    projection = nor;
-                    projection.normalize();
-                    projection *= ((high2-low1));
-                }
-            }
-        }
-    }
-    
-    return projection;
+
+void Boid::seek(ofPoint target) {
+    acc += steer(target, false);
 }
 
-*/
-    
+void Boid::arrive(ofPoint target) {
+    acc += steer(target, true);
+}
 
 

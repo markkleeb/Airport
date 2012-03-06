@@ -106,25 +106,6 @@ void testApp::update(){
 	}
 
     
-    for(int i = 0; i < contourFinder.blobs.size(); i ++){
-        
-        ofxCvBlob temp = contourFinder.blobs[i];
-        
-        // loop through all points and adde very point to newly created ofPolyline
-        
-        // for(int j = 0; j < planes.size(); j++)
-        // {
-        //      if(pointInPolygon(temp.pts, planes[j].loc))
-        //      {
-        //          planes[j].turnAround();
-        //      }
-        
-      //  cout<<"Number of points for object "<<i<<": "<<temp.nPts<<"\n";
-    
-        
-        
-    }
-    
 
     for(int i=0; i<boids.size(); i++)
 	{
@@ -143,7 +124,7 @@ void testApp::update(){
 //--------------------------------------------------------------
 void testApp::draw(){
     
-    path.draw();
+    path->draw();
 
     
     ofSetColor(255, 255, 255);
@@ -155,10 +136,10 @@ void testApp::draw(){
     
 //    cout << " " << ofGetFrameNum();
     
-    /*if(ofGetFrameNum()%120 == 1){
+    if(ofGetFrameNum()%300 == 1){
         Boid b;
 		boids.push_back( b );
-    }*/
+    }
 	
 	for(int i=0; i<boids.size(); i++) {
 		boids[i].draw();
@@ -352,12 +333,13 @@ void testApp::kinectImage(){
 void testApp::newPath() {
     
     float offset = 60;
-    path.addPoint(800, 700);
-    path.addPoint(200, 700);
-    path.addPoint(200, 400);
-    path.addPoint(1200, 400);
-    path.addPoint(1200, 150);
-    path. addPoint(200, 150);
+   path = new Path();
+    path->addPoint(800, 700);
+    path->addPoint(200, 700);
+    path->addPoint(200, 400);
+    path->addPoint(1200, 400);
+    path->addPoint(1200, 150);
+    path->addPoint(200, 150);
     
     
 }
