@@ -150,6 +150,22 @@ void testApp::draw(){
 	
 	for(int i=0; i<boids.size(); i++) {
 		boids[i].draw();
+        
+        if(boids[i].debug){
+            for(int i=0; i<contourFinder.blobs.size(); i++){
+                
+                ofPushMatrix();
+                ofTranslate(contourFinder.blobs[i].centroid.x, contourFinder.blobs[i].centroid.y);
+                ofSetColor(0, 255, 0);
+                ofEllipse(0, 0, 10, 10);
+                ofPopMatrix();
+                
+                
+            }
+
+        }
+        
+        
 	}
     
     for(int i=0; i<blobs.size(); i ++){
@@ -158,6 +174,7 @@ void testApp::draw(){
 //	capture();
     
    
+       
 
 }
 

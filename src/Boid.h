@@ -54,6 +54,8 @@ public:
     bool projected;
     bool debug;
     
+   // ofxCvContourFinder contourFinder;
+    
     
     vector<ofPoint> p;
     

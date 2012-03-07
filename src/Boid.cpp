@@ -23,7 +23,7 @@ Boid::Boid() {
     vel = ofPoint(-maxspeed, 0);
     wandertheta = 0.0;
     objAvoidScalar = 10;
-   // debug = false;
+   //debug = false;
     
     i.loadImage("airplane.png");
     i.resize(25,30);
@@ -80,8 +80,8 @@ void Boid::draw() {
     i.setAnchorPoint(10, 12);
 
     i.draw(0,0);
-    ofSetColor(255, 20, 147);
-    ofCircle(0, 0, 4);
+    //ofSetColor(255, 20, 147);
+    //ofCircle(0, 0, 4);
     ofPopMatrix();
 	ofDisableAlphaBlending();
     
@@ -131,9 +131,10 @@ void Boid::intersects(ofxCvContourFinder& _cv, Path* _path){
         
         if(l.inside(heading))
         {   
-            ofPoint force = _cv.blobs[i].centroid - heading;
+            ofPoint force = heading - _cv.blobs[i].centroid;
             acc += force.normalize() * 5;
             cout << "bounce!\n";
+            seek(force);
         } 
     }    
 
