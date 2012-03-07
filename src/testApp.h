@@ -11,6 +11,8 @@
 
 class testApp : public ofBaseApp{
 
+    int startX, startY;
+    
 	public:
 		void setup();
 		void update();

@@ -12,7 +12,7 @@
 
 Path::Path() {
 	// Arbitrary radius of 20
-	radius = 20;
+	radius = 100;
 	debug = true;
 }
 
@@ -28,13 +28,13 @@ void Path::addPoint(float x, float y) {
 void Path::draw() {
 	
 	// Draw the radius as thick lines and circles
-	if (debug) {
+	if (false) {
 		ofEnableAlphaBlending();
 		ofSetColor(200, 200, 200, 200);
 		
 		// Draw end points
 		for (int i = 0; i < points.size(); i++) {
-			ofSetColor(175, 175, 175);
+            ofSetColor(175, 175, 175);
 			ofEllipse(points[i].x,points[i].y,radius*2,radius*2);
 		}
 		
@@ -67,7 +67,7 @@ void Path::draw() {
 	}
 	
 	// Draw Regular Line
-	ofSetColor(0x000000);
+	ofSetColor(0,0,0);
 	ofNoFill();
 	ofBeginShape();
 	for (int i = 0; i < points.size(); i++) {

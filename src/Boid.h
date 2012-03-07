@@ -21,6 +21,10 @@
 
 
 class Boid {
+    
+    int objAvoidScalar;
+    ofImage i;
+    
 public:
 	Boid();
 	
@@ -48,6 +52,8 @@ public:
     ofPoint getNormalPoint(ofPoint a, ofPoint b, ofPoint c);
     
     bool projected;
+    bool debug;
+    
     
     vector<ofPoint> p;
     

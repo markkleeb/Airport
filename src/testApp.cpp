@@ -4,7 +4,8 @@
 //--------------------------------------------------------------
 void testApp::setup(){
     
-    
+    startX = 1100;
+    startY = 650;
     ofSetFrameRate(60);
 	
     ofSetLogLevel(OF_LOG_VERBOSE);
@@ -28,7 +29,7 @@ void testApp::setup(){
 	grayThreshFar.allocate(kinect.width, kinect.height);
 	
 	nearThreshold = 230;
-	farThreshold = 70;
+	farThreshold = 90;
 	bThreshWithOpenCV = true;
 	
 
@@ -48,8 +49,8 @@ void testApp::setup(){
     newPath();
     
 	
-		Boid b;
-		boids.push_back( b );
+//		Boid b;
+//		boids.push_back( b );
 	
        
     
@@ -102,7 +103,8 @@ void testApp::update(){
 		
 		// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
 		// also, find holes is set to true so we will get interior contours as well....
-		contourFinder.findContours(grayImage, 10, (kinect.width*kinect.height)/2, 20, false);
+		contourFinder.findContours(grayImage, 100, (kinect.width*kinect.height)/2, 20, false);
+        
 	}
 
     
@@ -110,12 +112,13 @@ void testApp::update(){
     for(int i=0; i<boids.size(); i++)
 	{
 	
+        boids[i].intersects(contourFinder, path);
 		boids[i].update();
-        
-            boids[i].intersects(contourFinder, path);
             
         
-        
+        if(boids[i].loc.x < 50 && boids[i].loc.y < 200){
+            boids.erase(boids.begin() + i);
+        }
       
     }
 
@@ -139,6 +142,10 @@ void testApp::draw(){
     if(ofGetFrameNum()%300 == 1){
         Boid b;
 		boids.push_back( b );
+        for(int i = 0; i < boids.size(); i++)
+        {
+            b.debug = boids[i-1].debug;
+        }
     }
 	
 	for(int i=0; i<boids.size(); i++) {
@@ -148,7 +155,7 @@ void testApp::draw(){
     for(int i=0; i<blobs.size(); i ++){
         blobs[i].draw();
     }
-	capture();
+//	capture();
     
    
 
@@ -162,18 +169,33 @@ void testApp::keyPressed(int key){
 			break;
 			
 		case'p':
-			kinectOn = !kinectOn;
+            if (kinectOn) {
+                kinectOn = false;
+                for(int i = 0; i < boids.size(); i++)
+                {
+                    boids[i].debug = false;
+                }
+            } else {
+                kinectOn = true;
+                for(int i = 0; i < boids.size(); i++)
+                {
+                    boids[i].debug = true;
+                }
+            }
 			break;
 			
 		case '>':
 		case '.':
 			farThreshold ++;
+            cout<<"Threshold: "<<farThreshold<<"\n";
 			if (farThreshold > 255) farThreshold = 255;
 			break;
 			
 		case '<':
 		case ',':
 			farThreshold --;
+            
+            cout<<"Threshold: "<<farThreshold<<"\n";
 			if (farThreshold < 0) farThreshold = 0;
 			break;
 			
@@ -201,6 +223,10 @@ void testApp::keyPressed(int key){
 			kinect.setCameraTiltAngle(0); // zero the tilt
 			kinect.close();
 			break;
+        
+        case 'n':
+            boids.push_back(Boid());
+            break;
 			
 		case OF_KEY_UP:
 			angle++;
@@ -213,6 +239,14 @@ void testApp::keyPressed(int key){
 			if(angle<-30) angle=-30;
 			kinect.setCameraTiltAngle(angle);
 			break;
+            
+        case 'd':
+            for(int i = 0; i < boids.size(); i++)
+            {
+                boids[i].debug = false;
+            }
+			break;
+            
 	}
 
 
@@ -304,9 +338,9 @@ void testApp::kinectImage(){
 
     
     if(kinectOn) {
-      //grayImage.draw(0, 0);
-        contourFinder.draw(0, 0);
-        
+      //grayImage.draw(0, 0, 1280, 768);
+        //contourFinder.draw(-700, 0, 2400, 1180);
+        contourFinder.draw(0,0);    
         
         // draw instructions
         ofSetColor(255, 255, 255);
@@ -322,7 +356,7 @@ void testApp::kinectImage(){
         << "press c to close the connection and o to open it again, connection is: " << kinect.isConnected() << endl
         << "press UP and DOWN to change the tilt angle: " << angle << " degrees" << endl;
         
-        ofDrawBitmapString(reportStream.str(),20,652);
+        ofDrawBitmapString(reportStream.str(),20,790);
 
         
     }
@@ -334,12 +368,12 @@ void testApp::newPath() {
     
     float offset = 60;
    path = new Path();
-    path->addPoint(1200, 700);
-    path->addPoint(200, 700);
-    path->addPoint(200, 400);
-    path->addPoint(1200, 400);
-    path->addPoint(1200, 150);
-    path->addPoint(200, 150);
+    path->addPoint(startX, startY);
+    path->addPoint(150, 650);
+    path->addPoint(150, 400);
+    path->addPoint(1100, 400);
+    path->addPoint(1100, 150);
+    path->addPoint(0, 150);
     
     
 }

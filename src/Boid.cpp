@@ -12,19 +12,21 @@
 
 Boid::Boid() {
 
-    loc.x = 800;
-	loc.y = 700;
-    //vel.x = ofRandom(-2, 2);
-    //vel.y = ofRandom(-2, 2);
-   
+    loc.x = 1101;//750;
+	loc.y = 651;//690;   
     
 	acc = 0;
 	
     r = 5.0;
-    maxspeed = 1.5;
+    maxspeed = 2;
     maxforce = 0.1;
-     vel = ofPoint(maxspeed, 0);
+    vel = ofPoint(-maxspeed, 0);
     wandertheta = 0.0;
+    objAvoidScalar = 10;
+   // debug = false;
+    
+    i.loadImage("airplane.png");
+    i.resize(25,30);
     
 }
 
@@ -34,32 +36,28 @@ void Boid::update() {
     
     
   
-   vel += acc;   // Update velocity
+    vel += acc;   // Update velocity
     vel.x = ofClamp(vel.x, -maxspeed, maxspeed);  // Limit speed
 	vel.y = ofClamp(vel.y, -maxspeed, maxspeed);  // Limit speed
    
     loc += vel;
     
-    loc.x = ofClamp(loc.x, 0, ofGetWindowWidth());
-    loc.y = ofClamp(loc.y, 0, ofGetWindowHeight());
+   // loc.x = ofClamp(loc.x, 0, ofGetWindowWidth());
+   // loc.y = ofClamp(loc.y, 0, ofGetWindowHeight());
     
     acc = 0;  // Reset accelertion to 0 each cycle
 	
-    
-//wrap borders    
-//	if (loc.x < -r) loc.x = ofGetWidth()+r;
-//    if (loc.y < -r) loc.y = ofGetHeight()+r;
-//    if (loc.x > ofGetWidth()+r) loc.x = -r;
-//    if (loc.y > ofGetHeight()+r) loc.y = -r;
+
 }
 
 
 void Boid::draw() {
+    
     // Draw a triangle rotated in the direction of velocity
     //float theta = vel.heading2D() + radians(90);
 	
     
-    if(loc.x == 0 || loc.x == ofGetWindowWidth()) vel.x *= -1;
+   if(loc.x == 0 || loc.x == ofGetWindowWidth()) vel.x *= -1;
     if(loc.y == 0 || loc.y == ofGetWindowHeight()) vel.y *= -1;
 
 
@@ -74,29 +72,57 @@ void Boid::draw() {
     ofPushMatrix();
     ofTranslate(loc.x, loc.y);
     ofRotateZ(heading2D);
-	ofBeginShape();
-    ofVertex(0, -r*2);
-    ofVertex(-r, r*2);
-    ofVertex(r, r*2);
-    ofEndShape(true);
+//	ofBeginShape();
+//    ofVertex(0, -r*2);
+//    ofVertex(-r, r*2);
+//    ofVertex(r, r*2);
+//    ofEndShape(true);
+    i.setAnchorPoint(10, 12);
+
+    i.draw(0,0);
+    ofSetColor(255, 20, 147);
+    ofCircle(0, 0, 4);
     ofPopMatrix();
 	ofDisableAlphaBlending();
+    
+    
+    // Draw the predicted location
+    if (debug) {
+		ofFill();
+		ofSetColor(0,191,255); // BLUE
+		ofLine(loc.x,loc.y,predictLoc.x, predictLoc.y);
+        // PREDICTED LOCATION 
+		ofEllipse(predictLoc.x, predictLoc.y,4,4);
+        
+    }
+	
+	// Draw the debugging stuff
+    if (debug) {
+		// Draw normal location
+		ofSetColor(255, 69, 0); //ORANGE
+		ofLine(predictLoc.x, predictLoc.y, target.x, target.y);
+		ofEllipse(target.x,target.y,4,4);
+		
+		// Draw actual target (red if steering towards it)
+		ofLine(predictLoc.x,predictLoc.y,target.x,target.y);
+		
+		//if (record > p->radius) 
+		//	ofSetColor(255,0,0);
+        // VIOLET CIRCLE IS TARGET + DIR
+		ofSetColor(255, 20, 147);
+		ofEllipse(target.x+dir.x, target.y+dir.y, 8, 8);
+    }
+
     
 }
 
 void Boid::intersects(ofxCvContourFinder& _cv, Path* _path){
     
+    
     follow( _path);
-    
-  //  ofPoint f = follow( _path );
-  
-   // acc = acc + f;
-    
-  //  cout<< "FORCE = " << f.x << " , " << f.y << "\n";
-    
+
     
     ofPoint heading = loc + vel*25;  // A vector pointing from the location to where the boid is heading
-    
     
     for ( int i = 0; i < _cv.blobs.size(); i++ ) {
         ofxCvBlob temp = _cv.blobs[i];
@@ -104,19 +130,14 @@ void Boid::intersects(ofxCvContourFinder& _cv, Path* _path){
         l.addVertexes(temp.pts);
         
         if(l.inside(heading))
-        {   //vel *= -1;
-            ofVec2f force = heading - _cv.blobs[i].centroid;
-            acc = acc + force.normalize();
+        {   
+            ofPoint force = _cv.blobs[i].centroid - heading;
+            acc += force.normalize() * 5;
             cout << "bounce!\n";
-        }        
-        /*else{
-            wander();
-            cout << "wandering!\n";
-       }*/ 
-        
-        
+        } 
     }    
-    
+
+        
 }
 
 void Boid::follow(Path* p) {
@@ -141,6 +162,12 @@ void Boid::follow(Path* p) {
 		
 		// Get the normal point to that line
 		ofPoint normal = getNormalPoint(predictLoc,a,b);
+        
+       // ofPoint normalLoc = getNormalPoint(vel, a, b);
+        
+       //predictLoc.x = ofClamp(predictLoc.x, normalLoc.x, -normalLoc.x);
+       //predictLoc.y = ofClamp(predictLoc.y, normalLoc.y, -normalLoc.y);
+
 		
 		// Check if normal is on line segment
 		float da = ofDist(normal.x, normal.y, a.x, a.y);
@@ -165,14 +192,17 @@ void Boid::follow(Path* p) {
 			Path::normalize(&dir);
 			// This is an oversimplification
 			// Should be based on distance to path & velocity
-			dir*=10;
+			dir*=5;
 		}
     }
 	
     // Only if the distance is greater than the path's radius do we bother to steer
-    if (record > p->radius) {
+    if (record > 1) {
 		target += dir;
-		seek(target);			
+		seek(target);
+        
+    } else{
+       // arrive(target);
     }
     
     
@@ -242,10 +272,12 @@ ofPoint Boid::steer(ofPoint target, bool slowdown) {
 
 void Boid::seek(ofPoint target) {
     acc += steer(target, false);
+//    cout << "SEEK\n";
 }
 
 void Boid::arrive(ofPoint target) {
     acc += steer(target, true);
+    cout << "ARRIVE\n";
 }
 
 
