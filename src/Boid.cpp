@@ -12,7 +12,7 @@
 
 Boid::Boid() {
 
-    loc.x = 1101;//750;
+    loc.x = 1001;//750;
 	loc.y = 651;//690;   
     
 	acc = 0;
@@ -23,10 +23,13 @@ Boid::Boid() {
     vel = ofPoint(-maxspeed, 0);
     wandertheta = 0.0;
     objAvoidScalar = 10;
-   //debug = false;
+    debug = false;
     
     i.loadImage("airplane.png");
     i.resize(25,30);
+    
+    counter = 0;
+    avoidObject = false;
     
 }
 
@@ -118,11 +121,11 @@ void Boid::draw() {
 
 void Boid::intersects(ofxCvContourFinder& _cv, Path* _path){
     
-    
-    follow( _path);
+//     follow( _path);
+   
 
     
-    ofPoint heading = loc + vel*25;  // A vector pointing from the location to where the boid is heading
+    ofPoint heading = loc + vel*30;  // A vector pointing from the location to where the boid is heading
     
     for ( int i = 0; i < _cv.blobs.size(); i++ ) {
         ofxCvBlob temp = _cv.blobs[i];
@@ -131,12 +134,24 @@ void Boid::intersects(ofxCvContourFinder& _cv, Path* _path){
         
         if(l.inside(heading))
         {   
+            counter = 0;
+            avoidObject = true;
             ofPoint force = heading - _cv.blobs[i].centroid;
-            acc += force.normalize() * 5;
+            ofPoint force2 = getNormalPoint(force, heading, _cv.blobs[i].centroid);
+            acc += force.normalize()* 1.5;
             cout << "bounce!\n";
-            seek(force);
-        } 
+            
+        } else {
+            avoidObject = false;
+            counter++;
+        }
+        
+        
     }    
+    
+    if ( counter > 400 && avoidObject == false) {
+        follow(_path);
+    }
 
         
 }
@@ -144,7 +159,7 @@ void Boid::intersects(ofxCvContourFinder& _cv, Path* _path){
 void Boid::follow(Path* p) {
     ofPoint predict = vel;
     Path::normalize(&predict);
-    predict *= 25;
+    predict *= 30;
     predictLoc = loc + predict;
     
     

@@ -142,10 +142,7 @@ void testApp::draw(){
     if(ofGetFrameNum()%300 == 1){
         Boid b;
 		boids.push_back( b );
-        for(int i = 0; i < boids.size(); i++)
-        {
-            b.debug = boids[i-1].debug;
-        }
+
     }
 	
 	for(int i=0; i<boids.size(); i++) {
@@ -388,8 +385,8 @@ void testApp::newPath() {
     path->addPoint(startX, startY);
     path->addPoint(150, 650);
     path->addPoint(150, 400);
-    path->addPoint(1100, 400);
-    path->addPoint(1100, 150);
+    path->addPoint(1000, 400);
+    path->addPoint(1000, 150);
     path->addPoint(0, 150);
     
     

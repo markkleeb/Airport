@@ -24,6 +24,8 @@ class Boid {
     
     int objAvoidScalar;
     ofImage i;
+    int counter;
+    bool avoidObject;
     
 public:
 	Boid();
