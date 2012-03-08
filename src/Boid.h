@@ -21,16 +21,9 @@
 
 
 class Boid {
-public:
-	Boid();
-	
-	void update();
-	void draw();
-    void seek(ofPoint target);
-    void arrive(ofPoint target);
-    void wander();
-	
-	ofPoint loc;
+    
+        //INSTANCE VARIABLES
+    ofPoint loc;
 	ofPoint vel;
 	ofPoint acc;
     
@@ -43,6 +36,19 @@ public:
 	float maxspeed;
     float wandertheta;
     float record;
+    
+public:
+	Boid();
+    ~Boid();
+	
+	void update();
+	void draw();
+    void seek(ofPoint target);
+    void arrive(ofPoint target);
+    void wander();
+	
+
+    void start;
     
     void follow(Path* p);
     ofPoint getNormalPoint(ofPoint a, ofPoint b, ofPoint c);

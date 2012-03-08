@@ -23,8 +23,17 @@ Boid::Boid() {
     r = 5.0;
     maxspeed = 1.5;
     maxforce = 0.1;
-     vel = ofPoint(maxspeed, 0);
+     vel = ofPoint(0, 0);
     wandertheta = 0.0;
+    start();
+    
+}
+
+Boid::~Boid() {
+    
+}
+
+void Boid::start() {
     
 }
 
@@ -34,13 +43,13 @@ void Boid::update() {
     
     
   
-   vel += acc;   // Update velocity
+    vel += acc;   // Update velocity
     vel.x = ofClamp(vel.x, -maxspeed, maxspeed);  // Limit speed
 	vel.y = ofClamp(vel.y, -maxspeed, maxspeed);  // Limit speed
    
-    loc += vel;
+    loc += vel;     // Update location according to our velocity vector
     
-    loc.x = ofClamp(loc.x, 0, ofGetWindowWidth());
+    loc.x = ofClamp(loc.x, 0, ofGetWindowWidth()); //
     loc.y = ofClamp(loc.y, 0, ofGetWindowHeight());
     
     acc = 0;  // Reset accelertion to 0 each cycle
@@ -181,10 +190,10 @@ void Boid::follow(Path* p) {
 ofPoint Boid::getNormalPoint(ofPoint p, ofPoint a, ofPoint b) {
 	
     // Vector from a to p
-    ofPoint ap = p - a;
+    ofPoint ap = p - a; // ( 1,3 ) - ( 5, 3 ) = ( -4, 0 )
 	
     // Vector from a to b
-    ofPoint ab = b - a;
+    ofPoint ab = b - a; // ( 8, -4 ) - (5, 3) = (3, -7)
 	
 	Path::normalize(&ab); // Normalize the line
 	
