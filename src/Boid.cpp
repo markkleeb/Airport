@@ -5,6 +5,8 @@
  *  Created by Jeffrey Crouse on 3/29/10.
  *  Copyright 2010 Eyebeam. All rights reserved.
  *
+ *  Extended by Mark Kleeback and Ali Sajjadi on 3/6/12
+ *  
  */
 
 #include "Boid.h"
@@ -12,28 +14,30 @@
 
 Boid::Boid() {
 
-    loc.x = 800;
-	loc.y = 700;
-    //vel.x = ofRandom(-2, 2);
-    //vel.y = ofRandom(-2, 2);
-   
+    // Initialize our location for our take-off point
+    loc.x = 1001;
+	loc.y = 651;  
     
+    // Acceleration vector is zero at start, the functions will decide where to go
 	acc = 0;
 	
     r = 5.0;
-    maxspeed = 1.5;
+    
+    // Maximum speed of the plane
+    maxspeed = 2;
     maxforce = 0.1;
-     vel = ofPoint(0, 0);
-    wandertheta = 0.0;
-    start();
     
-}
-
-Boid::~Boid() {
+    // Velocity vector is set to start at maximum speed
+    vel = ofPoint(-maxspeed, 0);
     
-}
-
-void Boid::start() {
+    debug = false;
+    
+    // Image of our airplane to be loaded and resize
+    i.loadImage("airplane.png");
+    i.resize(25,30);
+    
+    counter = 0;
+    avoidObject = false;
     
 }
 
@@ -41,31 +45,24 @@ void Boid::start() {
 // Method to update location
 void Boid::update() {
     
+    // Update velocity
+    vel += acc;   
     
-  
-    vel += acc;   // Update velocity
-    vel.x = ofClamp(vel.x, -maxspeed, maxspeed);  // Limit speed
-	vel.y = ofClamp(vel.y, -maxspeed, maxspeed);  // Limit speed
-   
-    loc += vel;     // Update location according to our velocity vector
+    // Limit speed
+    vel.x = ofClamp(vel.x, -maxspeed, maxspeed);
+	vel.y = ofClamp(vel.y, -maxspeed, maxspeed);    
     
-    loc.x = ofClamp(loc.x, 0, ofGetWindowWidth()); //
-    loc.y = ofClamp(loc.y, 0, ofGetWindowHeight());
+    // Update location according to our velocity vector
+    loc += vel;     
     
-    acc = 0;  // Reset accelertion to 0 each cycle
-	
-    
-//wrap borders    
-//	if (loc.x < -r) loc.x = ofGetWidth()+r;
-//    if (loc.y < -r) loc.y = ofGetHeight()+r;
-//    if (loc.x > ofGetWidth()+r) loc.x = -r;
-//    if (loc.y > ofGetHeight()+r) loc.y = -r;
+    // Reset accelertion to 0 each cycle
+    acc = 0;  
 }
 
 
 void Boid::draw() {
+    
     // Draw a triangle rotated in the direction of velocity
-    //float theta = vel.heading2D() + radians(90);
 	
     
     if(loc.x == 0 || loc.x == ofGetWindowWidth()) vel.x *= -1;
@@ -83,29 +80,54 @@ void Boid::draw() {
     ofPushMatrix();
     ofTranslate(loc.x, loc.y);
     ofRotateZ(heading2D);
-	ofBeginShape();
+    
+	/* DRAW BOID ARROW - REPLACED WITH PNG IN FINAL VERSION
+    ofBeginShape();
     ofVertex(0, -r*2);
     ofVertex(-r, r*2);
     ofVertex(r, r*2);
     ofEndShape(true);
+    */
+    
+    // DRAW PNG IMAGE FOR AIRPLANE
+    i.setAnchorPoint(10, 12);
+    i.draw(0,0);
+    
     ofPopMatrix();
 	ofDisableAlphaBlending();
+    
+    
+    // Draw the predicted location
+    if (debug) {
+		ofFill();
+        
+		ofSetColor(0,191,255); // BLUE
+		ofLine(loc.x,loc.y,predictLoc.x, predictLoc.y);
+        
+        // PREDICTED LOCATION 
+		ofEllipse(predictLoc.x, predictLoc.y,4,4);
+
+		// Draw normal location
+		ofSetColor(255, 69, 0); //ORANGE
+		ofLine(predictLoc.x, predictLoc.y, target.x, target.y);
+		ofEllipse(target.x,target.y,4,4);
+		
+		// Draw actual target (red if steering towards it)
+		ofLine(predictLoc.x,predictLoc.y,target.x,target.y);
+		
+
+        // VIOLET CIRCLE IS TARGET + DIR
+		ofSetColor(255, 20, 147);
+		ofEllipse(target.x+dir.x, target.y+dir.y, 8, 8);
+    }
+
     
 }
 
 void Boid::intersects(ofxCvContourFinder& _cv, Path* _path){
+
     
-    follow( _path);
-    
-  //  ofPoint f = follow( _path );
-  
-   // acc = acc + f;
-    
-  //  cout<< "FORCE = " << f.x << " , " << f.y << "\n";
-    
-    
-    ofPoint heading = loc + vel*25;  // A vector pointing from the location to where the boid is heading
-    
+    ofPoint heading = loc + vel*30;  // A vector pointing from the location to where the boid is heading
     
     for ( int i = 0; i < _cv.blobs.size(); i++ ) {
         ofxCvBlob temp = _cv.blobs[i];
@@ -113,25 +135,33 @@ void Boid::intersects(ofxCvContourFinder& _cv, Path* _path){
         l.addVertexes(temp.pts);
         
         if(l.inside(heading))
-        {   //vel *= -1;
-            ofVec2f force = heading - _cv.blobs[i].centroid;
-            acc = acc + force.normalize();
+        {   
+            counter = 0;
+            avoidObject = true;
+            ofPoint force = heading - _cv.blobs[i].centroid;
+            ofPoint force2 = getNormalPoint(force, heading, _cv.blobs[i].centroid);
+            acc += force.normalize()* 1.5;
             cout << "bounce!\n";
-        }        
-        /*else{
-            wander();
-            cout << "wandering!\n";
-       }*/ 
-        
+            
+        } else {
+            avoidObject = false;
+            counter++;
+        }
         
     }    
     
+    if ( counter > 400 && avoidObject == false) {
+        follow(_path);
+    }
+
+        
 }
 
 void Boid::follow(Path* p) {
+    
     ofPoint predict = vel;
     Path::normalize(&predict);
-    predict *= 25;
+    predict *= 30;
     predictLoc = loc + predict;
     
     
@@ -174,28 +204,29 @@ void Boid::follow(Path* p) {
 			Path::normalize(&dir);
 			// This is an oversimplification
 			// Should be based on distance to path & velocity
-			dir*=10;
+			dir*=5;
 		}
     }
 	
-    // Only if the distance is greater than the path's radius do we bother to steer
-    if (record > p->radius) {
+    // Steer if the record object is even slightly off the center of the path
+    if (record > 1) {
 		target += dir;
-		seek(target);			
+		seek(target);
+        
     }
-    
     
 }
            
 ofPoint Boid::getNormalPoint(ofPoint p, ofPoint a, ofPoint b) {
 	
     // Vector from a to p
-    ofPoint ap = p - a; // ( 1,3 ) - ( 5, 3 ) = ( -4, 0 )
+    ofPoint ap = p - a;
 	
     // Vector from a to b
-    ofPoint ab = b - a; // ( 8, -4 ) - (5, 3) = (3, -7)
+    ofPoint ab = b - a;
 	
-	Path::normalize(&ab); // Normalize the line
+    // Normalize the line
+	Path::normalize(&ab); 
 	
     // Project vector "diff" onto line by using the dot product
     ab *= Path::dotproduct(ab, ap);
@@ -203,32 +234,15 @@ ofPoint Boid::getNormalPoint(ofPoint p, ofPoint a, ofPoint b) {
     return a + ab;
 }
 
-void Boid::wander() {
-    float wanderR = 16.0f;         // Radius for our "wander circle"
-    float wanderD = 50.0f;         // Distance for our "wander circle"
-    float change = 0.3f;//0.25f;
-    wandertheta += ofRandom(-change, change); // Randomly change wander theta
-    
-    // Now we have to calculate the new location to steer towards on the wander circle
-    ofPoint circleloc;
-    circleloc.set(vel.x, vel.y);  // Start with velocity
-    circleloc.normalize();            // Normalize to get heading
-    circleloc *= wanderD;          // Multiply by distance
-    circleloc += loc;               // Make it relative to boid's location
-    
-    ofPoint circleOffSet;
-    circleOffSet.set(wanderR*cos(wandertheta),wanderR*sin(wandertheta));
-    ofPoint target = circleloc + circleOffSet;
-    
-    acc += steer(target,false);  // Steer towards it
-    
-} 
-
-
 ofPoint Boid::steer(ofPoint target, bool slowdown) {
-    ofPoint steer;  // The steering vector
-    ofPoint desired = target - loc;  // A vector pointing from the location to the target
-    float d = ofDist(target.x, target.y, loc.x, loc.y); // Distance from the target is the magnitude of the vector
+    // The steering vector
+    ofPoint steer; 
+    
+    // A vector pointing from the location to the target
+    ofPoint desired = target - loc;  
+    
+    // Distance from the target is the magnitude of the vector
+    float d = ofDist(target.x, target.y, loc.x, loc.y); 
     
 	// If the distance is greater than 0, calc steering (otherwise return zero vector)
     if (d > 0) {

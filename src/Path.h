@@ -2,7 +2,7 @@
 //  Path.h
 //  Airport
 //
-//  Created by Mark Kleback on 3/5/12.
+//  Created by Mark Kleback and Ali Sajjadi on 3/5/12.
 //  Copyright (c) 2012 Kleebtronics, Inc. All rights reserved.
 //
 
@@ -13,18 +13,21 @@
 
 
 class Path {
+    
 public:	
-    // A Path is an vector of ofPoints
-    vector<ofPoint> points;
-    
-    // A path has a radius, i.e how far is it ok for the boid to wander off
-    float radius;
-    
-    bool debug;
     
     Path();
-    void addPoint(float x, float y);
-    void draw();
+    
+    // A Path is an vector of ofPoints
+    vector  <ofPoint>   points;
+    
+    // A path has a radius, i.e how far is it ok for the boid to wander off
+    float               radius;
+    bool                debug;
+    
+
+    void    addPoint        (float x, float y);
+    void    draw();
 	
 	
     static float mag(ofPoint* p) {

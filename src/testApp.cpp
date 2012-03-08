@@ -4,7 +4,8 @@
 //--------------------------------------------------------------
 void testApp::setup(){
     
-    
+    startX = 1100;
+    startY = 650;
     ofSetFrameRate(60);
 	
     ofSetLogLevel(OF_LOG_VERBOSE);
@@ -13,8 +14,6 @@ void testApp::setup(){
 	kinect.setRegistration(true);
     
 	kinect.init();
-	//kinect.init(true); // shows infrared instead of RGB video image
-	//kinect.init(false, false); // disable video image (faster fps)
 	kinect.open();
 	
 #ifdef USE_TWO_KINECTS
@@ -28,7 +27,7 @@ void testApp::setup(){
 	grayThreshFar.allocate(kinect.width, kinect.height);
 	
 	nearThreshold = 230;
-	farThreshold = 70;
+	farThreshold = 90;
 	bThreshWithOpenCV = true;
 	
 
@@ -47,17 +46,6 @@ void testApp::setup(){
     
     newPath();
     
-	
-		Boid b;
-		boids.push_back( b );
-	
-       
-    
- 
-        
-    
-    
-
 }
 
 //--------------------------------------------------------------
@@ -102,7 +90,8 @@ void testApp::update(){
 		
 		// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
 		// also, find holes is set to true so we will get interior contours as well....
-		contourFinder.findContours(grayImage, 10, (kinect.width*kinect.height)/2, 20, false);
+		contourFinder.findContours(grayImage, 100, (kinect.width*kinect.height)/2, 20, false);
+        
 	}
 
     
@@ -110,12 +99,13 @@ void testApp::update(){
     for(int i=0; i<boids.size(); i++)
 	{
 	
+        boids[i].intersects(contourFinder, path);
 		boids[i].update();
-        
-            boids[i].intersects(contourFinder, path);
             
         
-        
+        if(boids[i].loc.x < 50 && boids[i].loc.y < 200){
+            boids.erase(boids.begin() + i);
+        }
       
     }
 
@@ -125,33 +115,36 @@ void testApp::update(){
 void testApp::draw(){
     
     path->draw();
-
     
     ofSetColor(255, 255, 255);
     
 	kinectImage(); 
     
-    
-       
-    
-//    cout << " " << ofGetFrameNum();
-    
     if(ofGetFrameNum()%300 == 1){
         Boid b;
 		boids.push_back( b );
+
     }
 	
 	for(int i=0; i<boids.size(); i++) {
 		boids[i].draw();
-	}
-    
-    for(int i=0; i<blobs.size(); i ++){
-        blobs[i].draw();
-    }
-	capture();
-    
-   
+        
+        if(boids[i].debug){
+            for(int i=0; i<contourFinder.blobs.size(); i++){
+                
+                ofPushMatrix();
+                ofTranslate(contourFinder.blobs[i].centroid.x, contourFinder.blobs[i].centroid.y);
+                ofSetColor(0, 255, 0);
+                ofEllipse(0, 0, 10, 10);
+                ofPopMatrix();
+                
+                
+            }
 
+        }
+        
+        
+	}
 }
 
 //--------------------------------------------------------------
@@ -162,18 +155,33 @@ void testApp::keyPressed(int key){
 			break;
 			
 		case'p':
-			kinectOn = !kinectOn;
+            if (kinectOn) {
+                kinectOn = false;
+                for(int i = 0; i < boids.size(); i++)
+                {
+                    boids[i].debug = false;
+                }
+            } else {
+                kinectOn = true;
+                for(int i = 0; i < boids.size(); i++)
+                {
+                    boids[i].debug = true;
+                }
+            }
 			break;
 			
 		case '>':
 		case '.':
 			farThreshold ++;
+            cout<<"Threshold: "<<farThreshold<<"\n";
 			if (farThreshold > 255) farThreshold = 255;
 			break;
 			
 		case '<':
 		case ',':
 			farThreshold --;
+            
+            cout<<"Threshold: "<<farThreshold<<"\n";
 			if (farThreshold < 0) farThreshold = 0;
 			break;
 			
@@ -201,6 +209,10 @@ void testApp::keyPressed(int key){
 			kinect.setCameraTiltAngle(0); // zero the tilt
 			kinect.close();
 			break;
+        
+        case 'n':
+            boids.push_back(Boid());
+            break;
 			
 		case OF_KEY_UP:
 			angle++;
@@ -213,6 +225,14 @@ void testApp::keyPressed(int key){
 			if(angle<-30) angle=-30;
 			kinect.setCameraTiltAngle(angle);
 			break;
+            
+        case 'd':
+            for(int i = 0; i < boids.size(); i++)
+            {
+                boids[i].debug = false;
+            }
+			break;
+            
 	}
 
 
@@ -235,17 +255,11 @@ void testApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void testApp::mousePressed(int x, int y, int button){
-
-    
-   
     
 }
 
 //--------------------------------------------------------------
 void testApp::mouseReleased(int x, int y, int button){
-
-    ofSetColor(255, 0, 0);
-    ofCircle(mouseX, mouseY, 20);
     
 }
 
@@ -304,12 +318,12 @@ void testApp::kinectImage(){
 
     
     if(kinectOn) {
-      //grayImage.draw(0, 0);
-        contourFinder.draw(0, 0);
         
+        contourFinder.draw(0,0);    
         
         // draw instructions
         ofSetColor(255, 255, 255);
+        
         stringstream reportStream;
         reportStream << "accel is: " << ofToString(kinect.getMksAccel().x, 2) << " / "
         << ofToString(kinect.getMksAccel().y, 2) << " / "
@@ -322,9 +336,8 @@ void testApp::kinectImage(){
         << "press c to close the connection and o to open it again, connection is: " << kinect.isConnected() << endl
         << "press UP and DOWN to change the tilt angle: " << angle << " degrees" << endl;
         
-        ofDrawBitmapString(reportStream.str(),20,652);
+        ofDrawBitmapString(reportStream.str(),20,790);
 
-        
     }
     
 }
@@ -332,14 +345,13 @@ void testApp::kinectImage(){
 
 void testApp::newPath() {
     
-    float offset = 60;
-   path = new Path();
-    path->addPoint(1200, 700);
-    path->addPoint(200, 700);
-    path->addPoint(200, 400);
-    path->addPoint(1200, 400);
-    path->addPoint(1200, 150);
-    path->addPoint(200, 150);
+    path = new Path();
+    path->addPoint(startX, startY);
+    path->addPoint(150, 650);
+    path->addPoint(150, 400);
+    path->addPoint(1000, 400);
+    path->addPoint(1000, 150);
+    path->addPoint(0, 150);
     
     
 }
